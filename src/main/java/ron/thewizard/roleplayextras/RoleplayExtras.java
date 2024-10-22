@@ -99,8 +99,8 @@ public final class RoleplayExtras extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        RoleplayExtrasModule.disableAll();
         PluginYMLCmd.disableAll();
+        RoleplayExtrasModule.disableAll();
         Permissions.unregisterAll(getServer().getPluginManager());
         if (isPacketEventsInstalled) {
             PacketEvents.getAPI().terminate();
