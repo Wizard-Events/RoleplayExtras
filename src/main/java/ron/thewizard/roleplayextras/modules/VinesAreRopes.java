@@ -75,18 +75,18 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         // If the player isn't allowed to build here, don't continue
         if (!blockPlaceEvent.callEvent() || !blockPlaceEvent.canBuild()) return;
 
-        Block start = event.getClickedBlock().getRelative(event.getBlockFace());
+        Block placedBlock = event.getClickedBlock().getRelative(event.getBlockFace());
 
         // If the block we want to place would be denied, we will have to do it manually
         if (event.useItemInHand() != Event.Result.ALLOW) {
-            start.setType(event.getMaterial(), true);
+            placedBlock.setType(event.getMaterial(), true);
             if (event.getPlayer().getGameMode() == GameMode.SURVIVAL)
                 event.getItem().subtract();
         }
 
         // Schedule rope placement for cool and configurable visual
         scheduling.regionSpecificScheduler(event.getPlayer().getLocation())
-                .runAtFixedRate(new RopeDownTask(start, event.getMaterial(), maxLength), 1L, tickDelay);
+                .runAtFixedRate(new RopeDownTask(placedBlock, event.getMaterial(), maxLength), 1L, tickDelay);
     }
 
     private static class RopeDownTask implements Consumer<ScheduledTask> {
@@ -96,7 +96,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         private final int maxDistance;
         private int currentDistance;
 
-        public RopeDownTask(Block startBlock, Material ropeType, int maxDistance) {
+        private RopeDownTask(Block startBlock, Material ropeType, int maxDistance) {
             this.startBlock = startBlock;
             this.ropeType = ropeType;
             this.maxDistance = maxDistance;
