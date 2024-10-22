@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import ron.thewizard.roleplayextras.RoleplayExtras;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.util.EnumSet;
@@ -24,13 +25,13 @@ import java.util.stream.Collectors;
 public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
 
     private final Set<Material> vines;
-    private final long tickDelay;
-    private final int maxLength;
+    private final long tickRate;
+    private final int minLength, maxLength;
+    private final boolean requireSolidBlock;
 
     public VinesAreRopes() {
-        super("gameplay.vines-are-ropes", true);
-        this.tickDelay = config.getLong(configPath + ".rope-effect-tick-rate", 3L);
-        this.maxLength = config.getInt(configPath + ".max-length", 16);
+        super("gameplay.vines-are-ropes", true, """
+                Will turn vines into usable ropes that unwind on place.""");
         this.vines = config.getList(configPath + ".affected-vines", List.of("WEEPING_VINES"))
                 .stream()
                 .map(configuredMaterial -> {
@@ -43,6 +44,13 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
+        this.tickRate = config.getLong(configPath + ".growth.tick-rate", 3L, """
+                Will grow one block every x ticks.""");
+        int configuredMinLength = config.getInt(configPath + ".growth.min-length", 6);
+        int configuredMaxLength = config.getInt(configPath + ".growth.max-length", 16);
+        this.minLength = Math.min(configuredMinLength, configuredMaxLength);
+        this.maxLength = Math.max(configuredMinLength, configuredMaxLength);
+        this.requireSolidBlock = config.getBoolean(configPath + ".growth.require-solid-block", true);
     }
 
     @Override
@@ -58,11 +66,11 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (event.getBlockFace() == BlockFace.UP) return;
         if (!vines.contains(event.getMaterial())) return;
+        if (requireSolidBlock && !event.getClickedBlock().isSolid()) return;
 
         // Check if we are allowed to build here first
-        BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(
+        final BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(
                 event.getClickedBlock(), // Dummy information, important part is that it works for the check
                 event.getClickedBlock().getState(true),
                 event.getClickedBlock(),
@@ -75,42 +83,52 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         // If the player isn't allowed to build here, don't continue
         if (!blockPlaceEvent.callEvent() || !blockPlaceEvent.canBuild()) return;
 
-        Block placedBlock = event.getClickedBlock().getRelative(event.getBlockFace());
+        final Block startBlock;
+
+        if (event.getBlockFace() == BlockFace.UP) {
+            // Allow standing on top of a block and roping down
+            if (!event.getPlayer().isSneaking()) return;
+            Block blockBelow = event.getClickedBlock().getRelative(BlockFace.DOWN);
+            if (!blockBelow.getType().isAir()) return;
+            startBlock = blockBelow;
+        } else {
+            startBlock = event.getClickedBlock().getRelative(event.getBlockFace());
+        }
 
         // If the block we want to place would be denied, we will have to do it manually
         if (event.useItemInHand() != Event.Result.ALLOW) {
-            placedBlock.setType(event.getMaterial(), true);
+            startBlock.setType(event.getMaterial(), true);
             if (event.getPlayer().getGameMode() == GameMode.SURVIVAL)
                 event.getItem().subtract();
         }
 
         // Schedule rope placement for cool and configurable visual
         scheduling.regionSpecificScheduler(event.getPlayer().getLocation())
-                .runAtFixedRate(new RopeDownTask(placedBlock, event.getMaterial(), maxLength), 1L, tickDelay);
+                .runAtFixedRate(new UnwindRopeTask(startBlock, event.getMaterial(), minLength, maxLength), 1L, tickRate);
     }
 
-    private static class RopeDownTask implements Consumer<ScheduledTask> {
+    private static class UnwindRopeTask implements Consumer<ScheduledTask> {
 
         private final Block startBlock;
         private final Material ropeType;
-        private final int maxDistance;
-        private int currentDistance;
+        private final int geneticMax;
+        private int grownBlocks;
 
-        private RopeDownTask(Block startBlock, Material ropeType, int maxDistance) {
+        private UnwindRopeTask(Block startBlock, Material ropeType, int min, int max) {
             this.startBlock = startBlock;
             this.ropeType = ropeType;
-            this.maxDistance = maxDistance;
-            this.currentDistance = 1;
+            this.geneticMax = min == max ? max : RoleplayExtras.getRandom().nextInt(min, max);
+            this.grownBlocks = 1;
         }
 
         @Override
         public void accept(ScheduledTask scheduledTask) {
-            if (currentDistance >= maxDistance) {
+            if (grownBlocks >= geneticMax) {
                 scheduledTask.cancel();
                 return;
             }
 
-            Block relative = startBlock.getRelative(BlockFace.DOWN, currentDistance);
+            Block relative = startBlock.getRelative(BlockFace.DOWN, grownBlocks);
 
             if (!relative.getType().isAir()) {
                 scheduledTask.cancel();
@@ -118,7 +136,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
             }
 
             relative.setType(ropeType, true);
-            currentDistance++;
+            grownBlocks++;
         }
     }
 }
