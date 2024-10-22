@@ -4,11 +4,13 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
@@ -53,48 +55,62 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         HandlerList.unregisterAll(this);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (event.getBlockFace() == BlockFace.UP) return;
         if (!vines.contains(event.getMaterial())) return;
 
-        if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
-            event.getItem().subtract();
+        // Check if we are allowed to build here first
+        BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(
+                event.getClickedBlock(), // Dummy information, important part is that it works for the check
+                event.getClickedBlock().getState(true),
+                event.getClickedBlock(),
+                event.getItem(),
+                event.getPlayer(),
+                true,
+                event.getHand()
+        );
+
+        // If the player isn't allowed to build here, don't continue
+        if (!blockPlaceEvent.callEvent() || !blockPlaceEvent.canBuild()) return;
+
+        Block start = event.getClickedBlock().getRelative(event.getBlockFace());
+
+        // If the block we want to place would be denied, we will have to do it manually
+        if (event.useItemInHand() != Event.Result.ALLOW) {
+            start.setType(event.getMaterial(), true);
+            if (event.getPlayer().getGameMode() == GameMode.SURVIVAL)
+                event.getItem().subtract();
         }
-
-        Block ropeStart = event.getClickedBlock().getRelative(event.getBlockFace());
-
-        // Enable placing of normally unplaceable blocks
-        ropeStart.setType(event.getMaterial(), true);
 
         // Schedule rope placement for cool and configurable visual
         scheduling.regionSpecificScheduler(event.getPlayer().getLocation())
-                .runAtFixedRate(new RopeDownTask(ropeStart, event.getMaterial(), maxLength), 1L, tickDelay);
+                .runAtFixedRate(new RopeDownTask(start, event.getMaterial(), maxLength), 1L, tickDelay);
     }
 
     private static class RopeDownTask implements Consumer<ScheduledTask> {
 
         private final Block startBlock;
         private final Material ropeType;
-        private final int maxLen;
-        private int distance;
+        private final int maxDistance;
+        private int currentDistance;
 
-        public RopeDownTask(Block startBlock, Material ropeType, int maxLen) {
+        public RopeDownTask(Block startBlock, Material ropeType, int maxDistance) {
             this.startBlock = startBlock;
             this.ropeType = ropeType;
-            this.maxLen = maxLen;
-            this.distance = 1;
+            this.maxDistance = maxDistance;
+            this.currentDistance = 1;
         }
 
         @Override
         public void accept(ScheduledTask scheduledTask) {
-            if (distance >= maxLen) {
+            if (currentDistance >= maxDistance) {
                 scheduledTask.cancel();
                 return;
             }
 
-            Block relative = startBlock.getRelative(BlockFace.DOWN, distance);
+            Block relative = startBlock.getRelative(BlockFace.DOWN, currentDistance);
 
             if (!relative.getType().isAir()) {
                 scheduledTask.cancel();
@@ -102,7 +118,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
             }
 
             relative.setType(ropeType, true);
-            distance++;
+            currentDistance++;
         }
     }
 }
