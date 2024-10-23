@@ -27,7 +27,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     private final Set<Material> vines;
     private final long tickRate;
     private final int minLength, maxLength;
-    private final boolean requireSolidBlock;
+    private final boolean requireSolidBlock, enableUnwindFromTop;
 
     public VinesAreRopes() {
         super("gameplay.vines-are-ropes", true, """
@@ -66,6 +66,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (event.useInteractedBlock() == Event.Result.ALLOW) return;
         if (!vines.contains(event.getMaterial())) return;
         if (requireSolidBlock && !event.getClickedBlock().isSolid()) return;
 
@@ -86,13 +87,12 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         final Block startBlock;
 
         if (event.getBlockFace() == BlockFace.UP) { // Allows standing on top of a block and roping down
-            if (!event.getPlayer().isSneaking()) return;
+            if (!event.getPlayer().isSneaking()) return; // Be sure the player intends to do this and not just miss-clicking
             Block blockBelowClicked = event.getClickedBlock().getRelative(BlockFace.DOWN);
-            if (!blockBelowClicked.getType().isAir()) return;
+            if (!blockBelowClicked.getType().isAir()) return; // No need
 
             startBlock = blockBelowClicked;
 
-            // Manually do placing when sneaking + placing rope
             event.setCancelled(true); // Cancel because we will do the placing to bypass any vanilla restrictions
             startBlock.setType(event.getMaterial(), true);
             if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
@@ -100,13 +100,12 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
             }
         } else {
             startBlock = event.getClickedBlock().getRelative(event.getBlockFace());
-        }
-
-        // If the block we want to place would be denied, we will have to do it manually
-        if (event.useItemInHand() != Event.Result.ALLOW) {
-            startBlock.setType(event.getMaterial(), true);
-            if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
-                event.getItem().subtract();
+            // If the block we want to place would be denied, we will have to do it manually.
+            if (event.useItemInHand() != Event.Result.ALLOW) { // If placement works normally, don't touch so animations are played
+                startBlock.setType(event.getMaterial(), true);
+                if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+                    event.getItem().subtract();
+                }
             }
         }
 
