@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class CustomWalkSpeed extends RoleplayExtrasModule implements Listener {
 
     private final float walkSpeed;
-    private boolean firstJoinOnly;
+    private final boolean firstJoinOnly;
 
     public CustomWalkSpeed() {
         super("gameplay.custom-walk-speed", true);
