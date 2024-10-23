@@ -1,19 +1,38 @@
 package ron.thewizard.roleplayextras.commands;
 
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.PluginCommand;
 import org.jetbrains.annotations.NotNull;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 import ron.thewizard.roleplayextras.RoleplayExtras;
-import ron.thewizard.roleplayextras.commands.rpextras.RPExtrasCmd;
 import ron.thewizard.roleplayextras.utils.Disableable;
 import ron.thewizard.roleplayextras.utils.Enableable;
 
+import java.lang.reflect.Modifier;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public abstract class PluginYMLCmd extends BaseCommand implements Enableable, Disableable  {
 
-    public static final Set<PluginYMLCmd> COMMANDS = new HashSet<>();
+    protected static final Set<Class<PluginYMLCmd>> AVAILABLE_COMMANDS;
+    protected static final Set<PluginYMLCmd> ENABLED_COMMANDS;
+
+    static {
+        AVAILABLE_COMMANDS = new Reflections(PluginYMLCmd.class.getPackage().getName())
+                .get(Scanners.SubTypes.of(PluginYMLCmd.class).asClass())
+                .stream()
+                .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
+                .map(clazz -> (Class<PluginYMLCmd>) clazz)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getSimpleName))),
+                        ImmutableSet::copyOf));
+        ENABLED_COMMANDS = new HashSet<>();
+    }
 
     public final PluginCommand pluginCommand;
 
@@ -24,14 +43,24 @@ public abstract class PluginYMLCmd extends BaseCommand implements Enableable, Di
     }
 
     public static void disableAll() {
-        COMMANDS.forEach(Disableable::disable);
-        COMMANDS.clear();
+        ENABLED_COMMANDS.forEach(Disableable::disable);
+        ENABLED_COMMANDS.clear();
     }
 
     public static void reloadCommands() {
         disableAll();
-        COMMANDS.add(new RPExtrasCmd());
-        COMMANDS.forEach(Enableable::enable);
+
+        for (Class<PluginYMLCmd> clazz : AVAILABLE_COMMANDS) {
+            try {
+                PluginYMLCmd pluginYMLCmd = clazz.getDeclaredConstructor().newInstance();
+                pluginYMLCmd.enable();
+                ENABLED_COMMANDS.add(pluginYMLCmd);
+            } catch (Throwable t) { // This is not laziness. We want to catch everything here if it fails to init
+                RoleplayExtras.logger().warn("Failed initialising command class '{}'.", clazz.getSimpleName(), t);
+            }
+        }
+
+        ENABLED_COMMANDS.forEach(Enableable::enable);
     }
 
     @Override
