@@ -129,14 +129,14 @@ public class SprintBoost extends RoleplayExtrasModule implements Listener, Packe
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void on(PlayerQuitEvent event) {
-        if (playerTracker.containsKey(event.getPlayer().getUniqueId())) {
+        if (isAccelerated(event.getPlayer().getUniqueId())) {
             decelerate(playerTracker.get(event.getPlayer().getUniqueId()));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void on(PlayerKickEvent event) {
-        if (playerTracker.containsKey(event.getPlayer().getUniqueId())) {
+        if (isAccelerated(event.getPlayer().getUniqueId())) {
             decelerate(playerTracker.get(event.getPlayer().getUniqueId()));
         }
     }
