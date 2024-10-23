@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -14,10 +13,10 @@ public class KyoriUtil {
     public static final TextColor ginkoBlue, wizardPurple, wizardRed, wizardWhite;
 
     static {
-        wizardPurple = TextColor.fromHexString("#B442FF");
+        ginkoBlue = TextColor.fromHexString("#21FFF5");
         wizardRed = TextColor.fromHexString("#FF334E");
         wizardWhite = TextColor.fromHexString("#FFE0E2");
-        ginkoBlue = TextColor.fromHexString("#21FFF5");
+        wizardPurple = TextColor.fromHexString("#B442FF");
     }
 
     public static List<Component> getBirthdayMessage() {
@@ -47,7 +46,7 @@ public class KyoriUtil {
         );
     }
 
-    public static @NotNull String replaceAmpersand(@NotNull String string) {
+    public static String replaceAmpersand(String string) {
         string = string.replace("&0", "<black>");
         string = string.replace("&1", "<dark_blue>");
         string = string.replace("&2", "<dark_green>");
