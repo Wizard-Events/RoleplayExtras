@@ -73,7 +73,7 @@ public class DontMergeItems extends RoleplayExtrasModule implements Listener {
         * */
 
         // Only call asOne once and reuse it for all spawns. That way we won't repeatedly clone the same ItemMeta
-        // We can do this because spawning a new unique Item Entity, doesn't require the ItemStack to be unique
+        // We can do this because spawning a new unique Item Entity doesn't require the ItemStack to be unique
         ItemStack singleItemStack = mergedItemStack.asOne();
 
         for (int i = 0; i < mergedItemStack.getAmount(); i++) {
