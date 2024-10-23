@@ -9,10 +9,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class CustomWalkSpeed extends RoleplayExtrasModule implements Listener {
 
     private final float walkSpeed;
+    private boolean firstJoinOnly;
 
     public CustomWalkSpeed() {
         super("gameplay.custom-walk-speed", true);
         this.walkSpeed = (float) config.getDouble(configPath + ".speed", 0.4);
+        this.firstJoinOnly = config.getBoolean(configPath + ".first-join-only", true);
     }
 
     @Override
@@ -27,6 +29,8 @@ public class CustomWalkSpeed extends RoleplayExtrasModule implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(PlayerJoinEvent event) {
+        if (firstJoinOnly && event.getPlayer().hasPlayedBefore()) return;
+
         event.getPlayer().setWalkSpeed(walkSpeed);
     }
 }
