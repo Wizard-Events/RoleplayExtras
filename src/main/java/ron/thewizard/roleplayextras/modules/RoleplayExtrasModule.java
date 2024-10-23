@@ -13,7 +13,6 @@ import java.lang.reflect.Modifier;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public abstract class RoleplayExtrasModule implements Enableable, Disableable {
@@ -27,9 +26,8 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
                 .stream()
                 .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
                 .map(clazz -> (Class<RoleplayExtrasModule>) clazz)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getSimpleName))),
-                        ImmutableSet::copyOf));
+                .sorted(Comparator.comparing(Class::getSimpleName))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableSet::copyOf));
         ENABLED_MODULES = new HashSet<>();
     }
 
@@ -75,14 +73,14 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
     public static void reloadModules() {
         disableAll();
 
-        for (Class<RoleplayExtrasModule> clazz : AVAILABLE_MODULES) {
+        for (Class<RoleplayExtrasModule> moduleClass : AVAILABLE_MODULES) {
             try {
-                RoleplayExtrasModule module = clazz.getDeclaredConstructor().newInstance();
+                RoleplayExtrasModule module = moduleClass.getDeclaredConstructor().newInstance();
                 if (module.shouldEnable()) {
                     ENABLED_MODULES.add(module);
                 }
             } catch (Throwable t) { // This is not laziness. We want to catch everything here if it fails to init
-                RoleplayExtras.logger().warn("Failed initialising module class '{}'.", clazz.getSimpleName(), t);
+                RoleplayExtras.logger().warn("Failed initialising module class '{}'.", moduleClass.getSimpleName(), t);
             }
         }
 
