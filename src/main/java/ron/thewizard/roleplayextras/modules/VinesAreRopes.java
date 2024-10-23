@@ -85,12 +85,19 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
 
         final Block startBlock;
 
-        if (event.getBlockFace() == BlockFace.UP) {
-            // Allow standing on top of a block and roping down
+        if (event.getBlockFace() == BlockFace.UP) { // Allows standing on top of a block and roping down
             if (!event.getPlayer().isSneaking()) return;
-            Block blockBelow = event.getClickedBlock().getRelative(BlockFace.DOWN);
-            if (!blockBelow.getType().isAir()) return;
-            startBlock = blockBelow;
+            Block blockBelowClicked = event.getClickedBlock().getRelative(BlockFace.DOWN);
+            if (!blockBelowClicked.getType().isAir()) return;
+
+            startBlock = blockBelowClicked;
+
+            // Manually do placing when sneaking + placing rope
+            event.setCancelled(true); // Cancel because we will do the placing to bypass any vanilla restrictions
+            startBlock.setType(event.getMaterial(), true);
+            if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+                event.getItem().subtract();
+            }
         } else {
             startBlock = event.getClickedBlock().getRelative(event.getBlockFace());
         }
@@ -98,8 +105,9 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         // If the block we want to place would be denied, we will have to do it manually
         if (event.useItemInHand() != Event.Result.ALLOW) {
             startBlock.setType(event.getMaterial(), true);
-            if (event.getPlayer().getGameMode() == GameMode.SURVIVAL)
+            if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
                 event.getItem().subtract();
+            }
         }
 
         // Schedule rope placement for cool and configurable visual
