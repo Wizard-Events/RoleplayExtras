@@ -14,7 +14,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.Map;
@@ -121,6 +123,20 @@ public class SprintBoost extends RoleplayExtrasModule implements Listener, Packe
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void on(PlayerToggleSneakEvent event) {
         if (stopOnSneak && event.isSneaking() && isAccelerated(event.getPlayer().getUniqueId())) {
+            decelerate(playerTracker.get(event.getPlayer().getUniqueId()));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    private void on(PlayerQuitEvent event) {
+        if (playerTracker.containsKey(event.getPlayer().getUniqueId())) {
+            decelerate(playerTracker.get(event.getPlayer().getUniqueId()));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    private void on(PlayerKickEvent event) {
+        if (playerTracker.containsKey(event.getPlayer().getUniqueId())) {
             decelerate(playerTracker.get(event.getPlayer().getUniqueId()));
         }
     }
