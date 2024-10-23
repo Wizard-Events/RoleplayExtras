@@ -103,40 +103,38 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         }
 
         // Schedule rope placement for cool and configurable visual
-        scheduling.regionSpecificScheduler(event.getPlayer().getLocation())
-                .runAtFixedRate(new UnwindRopeTask(startBlock, event.getMaterial(), minLength, maxLength), 1L, tickRate);
+        scheduling.regionSpecificScheduler(startBlock.getLocation())
+                .runAtFixedRate(new UnwindRopeTask(startBlock, minLength, maxLength), 1L, tickRate);
     }
 
     private static class UnwindRopeTask implements Consumer<ScheduledTask> {
 
         private final Block startBlock;
-        private final Material ropeType;
-        private final int geneticMax;
-        private int grownBlocks;
+        private final int maxLength;
+        private int currentLength;
 
-        private UnwindRopeTask(Block startBlock, Material ropeType, int min, int max) {
+        private UnwindRopeTask(Block startBlock, int min, int max) {
             this.startBlock = startBlock;
-            this.ropeType = ropeType;
-            this.geneticMax = min == max ? max : RoleplayExtras.getRandom().nextInt(min, max);
-            this.grownBlocks = 1;
+            this.maxLength = min == max ? max : RoleplayExtras.getRandom().nextInt(min, max);
+            this.currentLength = 1;
         }
 
         @Override
         public void accept(ScheduledTask scheduledTask) {
-            if (grownBlocks >= geneticMax) {
+            if (currentLength >= maxLength) {
                 scheduledTask.cancel();
                 return;
             }
 
-            Block relative = startBlock.getRelative(BlockFace.DOWN, grownBlocks);
+            Block relative = startBlock.getRelative(BlockFace.DOWN, currentLength);
 
             if (!relative.getType().isAir()) {
                 scheduledTask.cancel();
                 return;
             }
 
-            relative.setType(ropeType, true);
-            grownBlocks++;
+            relative.setType(startBlock.getType(), true);
+            currentLength++;
         }
     }
 }
