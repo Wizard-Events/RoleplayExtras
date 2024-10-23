@@ -53,8 +53,7 @@ public class DontMergeItems extends RoleplayExtrasModule implements Listener {
         if (mergedItemStack.getAmount() <= 1) return;
 
         event.setCancelled(true);
-        /* I am the one who drops
-        *  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+        /* ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
         *  ⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
         *  ⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
         *  ⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠆⠜⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
@@ -70,12 +69,9 @@ public class DontMergeItems extends RoleplayExtrasModule implements Listener {
         *  ⣿⣿⣿⡿⠟⠋⠀⠀⠀⠀⠹⣿⣧⣀⠀⠀⠀⠀⡀⣴⠁⢘⡙⢿⣿⣿⣿⣿⣿⣿⣿⣿
         *  ⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⠗⠂⠄⠀⣴⡟⠀⠀⡃⠀⠉⠉⠟⡿⣿⣿⣿⣿
         *  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢷⠾⠛⠂⢹⠀⠀⠀⢡⠀⠀⠀⠀⠀⠙⠛⠿⢿
-        * */
+        *  I am the one who drops.*/
 
-        // Only call asOne once and reuse it for all spawns. That way we won't repeatedly clone the same ItemMeta
-        // We can do this because spawning a new unique Item Entity doesn't require the ItemStack to be unique
         ItemStack singleItemStack = mergedItemStack.asOne();
-
         for (int i = 0; i < mergedItemStack.getAmount(); i++) {
             // Spawn single item with a natural feeling, random location offset.
             // We won't have to schedule this because on Folia, Entity Events are executed on the Entity's Thread
