@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.jetbrains.annotations.NotNull;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
@@ -26,7 +27,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
 
     private final Set<Material> vines;
     private final long tickRate;
-    private final int minLength, maxLength;
+    private final int minLength, maxLength, unwindFromTopMaxThickness;
     private final boolean requireSolidBlock, enableUnwindFromTop;
 
     public VinesAreRopes() {
@@ -44,6 +45,13 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
+        this.enableUnwindFromTop = config.getBoolean(configPath + ".unwind-from-top.enable", true, """
+                Allows a player to stand on top of a block and place a rope\s
+                while sneaking. The rope will then unwind below that block.""");
+        this.unwindFromTopMaxThickness = config.getInt(configPath + ".unwind-from-top.max-ledge-thickness", 3, """
+                Imagine a plank on a pirate ship in minecraft.\s
+                This is the maximum allowed thickness in blocks the plank is\s
+                allowed to be for the rope effect to play.""");
         this.tickRate = config.getLong(configPath + ".growth.tick-rate", 3L, """
                 Will grow one block every x ticks.""");
         int configuredMinLength = config.getInt(configPath + ".growth.min-length", 6);
@@ -66,7 +74,6 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (event.useInteractedBlock() == Event.Result.ALLOW) return;
         if (!vines.contains(event.getMaterial())) return;
         if (requireSolidBlock && !event.getClickedBlock().isSolid()) return;
 
@@ -84,16 +91,32 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         // If the player isn't allowed to build here, don't continue
         if (!blockPlaceEvent.callEvent() || !blockPlaceEvent.canBuild()) return;
 
-        final Block startBlock;
+        final @NotNull Block startBlock;
 
-        if (event.getBlockFace() == BlockFace.UP) { // Allows standing on top of a block and roping down
+        if (enableUnwindFromTop && event.getBlockFace() == BlockFace.UP) {
             if (!event.getPlayer().isSneaking()) return; // Be sure the player intends to do this and not just miss-clicking
+
             Block blockBelowClicked = event.getClickedBlock().getRelative(BlockFace.DOWN);
-            if (!blockBelowClicked.getType().isAir()) return; // No need
+            if (blockBelowClicked.getType().isAir()) {
+                startBlock = blockBelowClicked;
+            }
 
-            startBlock = blockBelowClicked;
+            else { // If there's no air immediately below the clicked block, look further downwards
+                int blocks = 1;
+                do {
+                    Block plankBlock = blockBelowClicked.getRelative(BlockFace.DOWN, blocks);
+                    if (plankBlock.getType().isAir()) { // Winner
+                        startBlock = plankBlock;
+                        break;
+                    }
+                    if (blocks == unwindFromTopMaxThickness) { // If we haven't found air within the configured range, do nothing
+                        return;
+                    }
+                    blocks++;
+                } while (true);
+            }
 
-            event.setCancelled(true); // Cancel because we will do the placing to bypass any vanilla restrictions
+            event.setCancelled(true); // Cancel event because we need to do the placing in a non-vanilla way
             startBlock.setType(event.getMaterial(), true);
             if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
                 event.getItem().subtract();
