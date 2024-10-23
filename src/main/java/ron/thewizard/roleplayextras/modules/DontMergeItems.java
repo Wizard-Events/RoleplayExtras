@@ -10,12 +10,12 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import ron.thewizard.roleplayextras.utils.EntityUtil;
 
-public class NoMergingItems extends RoleplayExtrasModule implements Listener {
+public class DontMergeItems extends RoleplayExtrasModule implements Listener {
 
     private final float disperseIntensity;
     private final int minPickupDelayTicks;
 
-    public NoMergingItems() {
+    public DontMergeItems() {
         super("gameplay.dont-merge-dropped-items", true);
         this.disperseIntensity = (float) config.getDouble(configPath + ".disperse-intensity", 1.3, """
                 Specifies the amount of spread for every single item when\s

@@ -10,8 +10,10 @@ import ron.thewizard.roleplayextras.utils.Enableable;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.lang.reflect.Modifier;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public abstract class RoleplayExtrasModule implements Enableable, Disableable {
@@ -25,7 +27,9 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
                 .stream()
                 .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
                 .map(clazz -> (Class<RoleplayExtrasModule>) clazz)
-                .collect(Collectors.collectingAndThen(Collectors.toSet(), ImmutableSet::copyOf));
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getSimpleName))),
+                        ImmutableSet::copyOf));
         ENABLED_MODULES = new HashSet<>();
     }
 
