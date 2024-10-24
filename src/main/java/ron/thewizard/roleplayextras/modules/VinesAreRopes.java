@@ -33,6 +33,8 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     public VinesAreRopes() {
         super("gameplay.vines-are-ropes", true, """
                 Will turn vines into usable ropes that unwind on place.""");
+        this.requireSolidBlock = config.getBoolean(configPath + ".require-solid-block", true, """
+                Whether the block the rope is placed against has to be solid.""");
         this.vines = config.getList(configPath + ".affected-vines", List.of("WEEPING_VINES"))
                 .stream()
                 .map(configuredMaterial -> {
@@ -52,8 +54,6 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
                 Imagine a plank on a pirate ship in minecraft.\s
                 This is the maximum allowed thickness in blocks the plank is\s
                 allowed to be for the rope effect to play.""");
-        this.requireSolidBlock = config.getBoolean(configPath + ".growth.require-solid-block", true, """
-                Whether the block the rope is placed against has to be solid.""");
         this.tickRate = config.getLong(configPath + ".growth.tick-rate", 3L, """
                 Will grow one block every x ticks.""");
         int configuredMinLength = config.getInt(configPath + ".growth.min-length", 6);
