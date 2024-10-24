@@ -14,7 +14,6 @@ import java.lang.reflect.Modifier;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public abstract class PluginYMLCmd extends BaseCommand implements Enableable, Disableable  {
@@ -28,9 +27,8 @@ public abstract class PluginYMLCmd extends BaseCommand implements Enableable, Di
                 .stream()
                 .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
                 .map(clazz -> (Class<PluginYMLCmd>) clazz)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getSimpleName))),
-                        ImmutableSet::copyOf));
+                .sorted(Comparator.comparing(Class::getSimpleName))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableSet::copyOf));
         ENABLED_COMMANDS = new HashSet<>();
     }
 
