@@ -52,13 +52,14 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
                 Imagine a plank on a pirate ship in minecraft.\s
                 This is the maximum allowed thickness in blocks the plank is\s
                 allowed to be for the rope effect to play.""");
+        this.requireSolidBlock = config.getBoolean(configPath + ".growth.require-solid-block", true, """
+                Whether the block the rope is placed against has to be solid.""");
         this.tickRate = config.getLong(configPath + ".growth.tick-rate", 3L, """
                 Will grow one block every x ticks.""");
         int configuredMinLength = config.getInt(configPath + ".growth.min-length", 6);
         int configuredMaxLength = config.getInt(configPath + ".growth.max-length", 16);
         this.minLength = Math.min(configuredMinLength, configuredMaxLength);
         this.maxLength = Math.max(configuredMinLength, configuredMaxLength);
-        this.requireSolidBlock = config.getBoolean(configPath + ".growth.require-solid-block", true);
     }
 
     @Override
@@ -118,8 +119,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
             }
         } else {
             startBlock = event.getClickedBlock().getRelative(event.getBlockFace());
-            // If the block we want to place would be denied, we will have to do it manually.
-            // Should placement work normally, this is not executed so vanilla place
+            // If the block we want to place wouldn't be placeable, we will have to do it manually.
             if (event.useItemInHand() != Event.Result.ALLOW) {
                 startBlock.setType(event.getMaterial(), true);
                 if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
