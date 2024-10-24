@@ -94,7 +94,9 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
 
         final @NotNull Block startBlock;
 
-        if (enableUnwindFromTop && event.getBlockFace() == BlockFace.UP) {
+        if (event.getBlockFace() == BlockFace.UP) {
+            if (!enableUnwindFromTop) return;
+
             // Be sure the player intends to do this and not just miss-clicking
             if (!event.getPlayer().isSneaking()) return;
 
