@@ -82,6 +82,10 @@ public class SprintBoost extends RoleplayExtrasModule implements Listener, Packe
         return playerTracker.containsKey(uuid);
     }
 
+    private void accelerate(Player player) {
+        playerTracker.put(player.getUniqueId(), new AcceleratedPlayer(player, speedMultiplier, durationMillis));
+    }
+
     private void decelerate(AcceleratedPlayer acceleratedPlayer) {
         acceleratedPlayer.revertSpeed();
         playerTracker.remove(acceleratedPlayer.player.getUniqueId());
@@ -100,11 +104,12 @@ public class SprintBoost extends RoleplayExtrasModule implements Listener, Packe
         if (startOnSwapOffHand && playerDigging.getAction() == DiggingAction.SWAP_ITEM_WITH_OFFHAND
             || startOnDropItem && playerDigging.getAction() == DiggingAction.DROP_ITEM) {
 
-            AcceleratedPlayer acceleratedPlayer = playerTracker.computeIfAbsent(player.getUniqueId(),
-                    uuid -> new AcceleratedPlayer(player, speedMultiplier, durationMillis));
+            if (!isAccelerated(player.getUniqueId())) {
+                accelerate(player);
+            }
 
-            if (stackDuration) {
-                acceleratedPlayer.extendDuration(durationMillis);
+            else if (stackDuration) {
+                playerTracker.get(player.getUniqueId()).extendDuration(durationMillis);
             }
         }
     }
