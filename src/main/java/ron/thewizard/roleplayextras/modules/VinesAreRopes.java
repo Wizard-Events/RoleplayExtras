@@ -106,7 +106,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
                     startBlock = below;
                     break;
                 }
-                if (blocks > unwindFromTopMaxThickness) { // One more to be true to the config settings
+                if (blocks == unwindFromTopMaxThickness) {
                     return;
                 }
                 blocks++;
