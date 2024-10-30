@@ -28,13 +28,15 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     private final Set<Material> vines;
     private final long tickRate;
     private final int minLength, maxLength, unwindFromTopMaxThickness;
-    private final boolean requireSolidBlock, enableUnwindFromTop;
+    private final boolean requireSolidBlock, enableUnwindFromTop, consumeItem;
 
     public VinesAreRopes() {
         super("gameplay.vines-are-ropes", true, """
                 Will turn vines into usable ropes that unwind on place.""");
         this.requireSolidBlock = config.getBoolean(configPath + ".require-solid-block", true, """
                 Whether the block the rope is placed against has to be solid.""");
+        this.consumeItem = config.getBoolean(configPath + ".consume-item", true, """
+                If set to true, players """);
         this.vines = config.getList(configPath + ".affected-vines", List.of("WEEPING_VINES"))
                 .stream()
                 .map(configuredMaterial -> {
@@ -72,6 +74,27 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         HandlerList.unregisterAll(this);
     }
 
+    /**
+     * Note: The API actually specifically advises AGAINST using this method for placing blocks where they shouldn't belong.
+     * <p>
+     * Quote:
+     * "This method should NOT be used to "hack" physics by placing blocks in impossible locations.
+     * Such blocks are liable to be removed on various events such as world upgrades.
+     * Furthermore setting large amounts of such blocks in close proximity may overload the server
+     * physics engine if an update is triggered at a later point. If this occurs, the resulting
+     * behavior is undefined."
+     * <p>
+     * HOWEVER, not only does it work for us, its also completely safe since we are not creating entire chunks out of vines
+     * and only placing some here and there.
+     */
+    private static void placeBlockIgnoringVanillaRestrictions(Material material, Block block) {
+        try {
+            block.setType(material, true); // Apply physics so blockStates can change naturally (ex. visually merge)
+        } catch (Throwable throwable) {
+            RoleplayExtras.logger().error("<gameplay.vines-are-ropes> Can't place block with material {}!", material);
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -97,10 +120,10 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         if (event.getBlockFace() == BlockFace.UP) {
             if (!enableUnwindFromTop) return;
 
-            // Be sure the player intends to do this and not just miss-clicking
+            // We use sneaking as an indicator for the player intending to do this
             if (!event.getPlayer().isSneaking()) return;
 
-            // Look for possible air block below
+            // Look for possible rope placement block below clicked block
             int blocks = 1;
             do {
                 Block below = event.getClickedBlock().getRelative(BlockFace.DOWN, blocks);
@@ -114,17 +137,22 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
                 blocks++;
             } while (true);
 
-            event.setCancelled(true); // Cancel event because we need to do the placing in a non-vanilla way
-            startBlock.setType(event.getMaterial(), true);
-            if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+            // Cancel use because we don't want to place the vine on top
+            event.setUseItemInHand(Event.Result.DENY);
+
+            placeBlockIgnoringVanillaRestrictions(event.getMaterial(), startBlock);
+
+            // Consume used item for survival players because we are cancelling the original interaction
+            if (consumeItem && event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
                 event.getItem().subtract();
             }
         } else {
             startBlock = event.getClickedBlock().getRelative(event.getBlockFace());
-            // If the block we want to place wouldn't be placeable, we will have to do it manually.
             if (event.useItemInHand() != Event.Result.ALLOW) {
-                startBlock.setType(event.getMaterial(), true);
-                if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+                // If the block we want to place wouldn't be placeable, we will have to do it manually.
+                placeBlockIgnoringVanillaRestrictions(event.getMaterial(), startBlock);
+                // Consume used item for survival players because the original interaction wouldn't happen by default
+                if (consumeItem && event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
                     event.getItem().subtract();
                 }
             }
@@ -132,6 +160,11 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
 
         // No interacting with clicked blocks when unwinding a rope
         event.setUseInteractedBlock(Event.Result.DENY);
+
+        // Prevent player from any natural item consumption if disabled
+        if (!consumeItem) {
+            event.setUseItemInHand(Event.Result.DENY);
+        }
 
         // Schedule rope placement for cool and configurable visual
         scheduling.regionSpecificScheduler(startBlock.getLocation())
@@ -164,7 +197,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
                 return;
             }
 
-            relative.setType(startBlock.getType(), true);
+            VinesAreRopes.placeBlockIgnoringVanillaRestrictions(startBlock.getType(), relative);
             currentLength++;
         }
     }
