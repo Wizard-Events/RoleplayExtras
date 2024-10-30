@@ -90,8 +90,8 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     private static void placeBlockIgnoringVanillaRestrictions(Material material, Block block) {
         try {
             block.setType(material, true); // Apply physics so blockStates can change naturally (ex. visually merge)
-        } catch (Throwable throwable) {
-            RoleplayExtras.logger().error("<gameplay.vines-are-ropes> Can't place block with material {}!", material);
+        } catch (Throwable t) {
+            RoleplayExtras.logger().error("<gameplay.vines-are-ropes> Can't place block with material {}!", material, t);
         }
     }
 
