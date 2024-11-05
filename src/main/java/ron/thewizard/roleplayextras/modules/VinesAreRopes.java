@@ -4,6 +4,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -101,10 +102,13 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         if (!vines.contains(event.getMaterial())) return;
         if (requireSolidBlock && !event.getClickedBlock().isSolid()) return;
 
-        // Check if we are allowed to build here first
+        // Ask any possible building permission plugin if the player can build here by simulating block placement
+        Block placed = event.getClickedBlock().getRelative(event.getBlockFace());
+        BlockState replacedBlockState = placed.getState(true);
+        replacedBlockState.setType(event.getMaterial());
         final BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(
-                event.getClickedBlock(), // Dummy information, important part is that it works for the check
-                event.getClickedBlock().getState(true),
+                placed,
+                replacedBlockState,
                 event.getClickedBlock(),
                 event.getItem(),
                 event.getPlayer(),
