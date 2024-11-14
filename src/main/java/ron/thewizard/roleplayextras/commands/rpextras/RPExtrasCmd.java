@@ -1,16 +1,15 @@
 package ron.thewizard.roleplayextras.commands.rpextras;
 
-import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
-import ron.thewizard.roleplayextras.commands.BaseCommand;
-import ron.thewizard.roleplayextras.commands.rpextras.subcommands.ReloadSubCmd;
-import ron.thewizard.roleplayextras.commands.rpextras.subcommands.VersionSubCmd;
-import ron.thewizard.roleplayextras.utils.Permissions;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ron.thewizard.roleplayextras.commands.BaseCommand;
+import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
+import ron.thewizard.roleplayextras.commands.rpextras.subcommands.ReloadSubCmd;
+import ron.thewizard.roleplayextras.commands.rpextras.subcommands.VersionSubCmd;
+import ron.thewizard.roleplayextras.utils.Permissions;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,8 +21,8 @@ public class RPExtrasCmd extends PluginYMLCmd {
 
     public RPExtrasCmd() {
         super("roleplayextras");
-        this.subCommands = Arrays.asList(new ReloadSubCmd(), new VersionSubCmd());
-        this.tabCompletes = subCommands.stream().map(BaseCommand::label).collect(Collectors.toList());
+        this.subCommands = List.of(new ReloadSubCmd(), new VersionSubCmd());
+        this.tabCompletes = subCommands.stream().map(BaseCommand::label).toList();
     }
 
     @Override

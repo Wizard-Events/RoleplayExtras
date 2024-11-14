@@ -13,7 +13,8 @@ public class CustomWalkSpeed extends RoleplayExtrasModule implements Listener {
 
     public CustomWalkSpeed() {
         super("gameplay.custom-walk-speed", true);
-        this.walkSpeed = (float) config.getDouble(configPath + ".speed", 0.4);
+        this.walkSpeed = (float) config.getDouble(configPath + ".speed", 0.4,
+                "Must be between -1.0 and 1.0.");
         this.firstJoinOnly = config.getBoolean(configPath + ".first-join-only", true);
     }
 

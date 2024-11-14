@@ -14,7 +14,8 @@ public final class RoleplayConfig {
 
     private final @NotNull ConfigFile configFile;
 
-    public final @NotNull List<Component> cmd_no_permission;
+    public final @NotNull List<Component> cmd_no_permission, walkspeed_invalid_speed_format, walkspeed_invalid_speed,
+            walkspeed_success_self, walkspeed_success_other;
 
     public RoleplayConfig() throws Exception {
         RoleplayExtras plugin = RoleplayExtras.getInstance();
@@ -28,11 +29,16 @@ public final class RoleplayConfig {
                 .addLine(" ", Title.Pos.CENTER)
                 .addSolidLine());
 
-        this.cmd_no_permission = getList("messages.cmd-no-permission", List.of("<red>Stop it you twat!"))
-                .stream()
-                .map(KyoriUtil::replaceAmpersand)
-                .map(MiniMessage.miniMessage()::deserialize)
-                .toList();
+        this.cmd_no_permission = getMessage("messages.cmd.no-permission",
+                List.of("<#FF334E>You don't have permissies :/"));
+        this.walkspeed_invalid_speed = getMessage("messages.cmd.walkspeed.invalid-speed",
+                List.of("<#FF334E>Invalid speed! Must be between -1.0 and 1.0!"));
+        this.walkspeed_invalid_speed_format = getMessage("messages.cmd.walkspeed.invalid-speed-format",
+                List.of("<#FF334E>Invalid speed! Format: #.##"));
+        this.walkspeed_success_self = getMessage("messages.cmd.walkspeed.success-self",
+                List.of("<#78E05E>Successfully set walkspeed to %walkspeed%."));
+        this.walkspeed_success_other = getMessage("messages.cmd.walkspeed.success-other",
+                List.of("<#78E05E>Successfully set %player%'s walkspeed to %walkspeed%."));
     }
 
     public boolean saveConfig() {
@@ -107,5 +113,13 @@ public final class RoleplayConfig {
     public @NotNull <T> List<T> getList(@NotNull String path, @NotNull List<T> def) {
         this.configFile.addDefault(path, def);
         return this.configFile.getList(path);
+    }
+
+    public @NotNull List<Component> getMessage(@NotNull String path, @NotNull List<String> def, @NotNull String comment) {
+        return this.getList(path, def, comment).stream().map(KyoriUtil::replaceAmpersand).map(MiniMessage.miniMessage()::deserialize).toList();
+    }
+
+    public @NotNull List<Component> getMessage(@NotNull String path, @NotNull List<String> def) {
+        return this.getList(path, def).stream().map(KyoriUtil::replaceAmpersand).map(MiniMessage.miniMessage()::deserialize).toList();
     }
 }

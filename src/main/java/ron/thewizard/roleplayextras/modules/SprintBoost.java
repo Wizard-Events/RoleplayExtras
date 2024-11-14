@@ -45,7 +45,7 @@ public class SprintBoost extends RoleplayExtrasModule implements Listener, Packe
                 walkspeed on activation.\s
                 1.8 means a 80% speed increase.""");
         this.durationMillis = config.getLong(configPath + ".duration-millis", 5000, """
-                How the player will be able to walk fast after triggering\s
+                How long the player will be able to walk fast after triggering\s
                 the feature.""");
         this.stackDuration = config.getBoolean(configPath + ".stack-duration", true, """
                 If set to true, the duration time will be extended by\s

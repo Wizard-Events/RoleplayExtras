@@ -13,3 +13,6 @@ commands:
     description: RoleplayExtras admin commands
     aliases:
       - rpextras
+  walkspeed:
+    usage: /walkspeed <speed> (player)
+    description: Sets walking speed
