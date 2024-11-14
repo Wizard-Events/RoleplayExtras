@@ -1,6 +1,8 @@
 package ron.thewizard.roleplayextras.modules;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import ron.thewizard.roleplayextras.RoleplayConfig;
@@ -21,6 +23,8 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
     protected static final Set<RoleplayExtrasModule> ENABLED_MODULES;
 
     static {
+        // Disable reflection logging for this operation because its just confusing and provides no value.
+        Configurator.setLevel(RoleplayExtras.class.getPackage().getName() + ".libs.reflections.Reflections", Level.OFF);
         AVAILABLE_MODULES = new Reflections(RoleplayExtrasModule.class.getPackage().getName())
                 .get(Scanners.SubTypes.of(RoleplayExtrasModule.class).asClass())
                 .stream()
