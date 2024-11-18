@@ -31,9 +31,9 @@ public enum PluginPermission {
     }
 
     public static void unregisterAll() {
-        for (PluginPermission perm : PluginPermission.values()) {
+        for (PluginPermission pluginPermission : PluginPermission.values()) {
             try {
-                Bukkit.getPluginManager().removePermission(perm.get());
+                Bukkit.getPluginManager().removePermission(pluginPermission.get());
             } catch (IllegalArgumentException ignored) {
             }
         }
