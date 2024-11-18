@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import ron.thewizard.roleplayextras.commands.BaseCommand;
 import ron.thewizard.roleplayextras.utils.KyoriUtil;
-import ron.thewizard.roleplayextras.utils.Permissions;
+import ron.thewizard.roleplayextras.utils.PluginPermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ public class VersionSubCmd extends BaseCommand {
     @Override
     @SuppressWarnings("UnstableApiUsage")
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission(Permissions.VERSION_CMD.bukkit())) {
+        if (!sender.hasPermission(PluginPermission.VERSION_CMD.get())) {
             RoleplayExtras.config().cmd_no_permission.forEach(sender::sendMessage);
             return true;
         }

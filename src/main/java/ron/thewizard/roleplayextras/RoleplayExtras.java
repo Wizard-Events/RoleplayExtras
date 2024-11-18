@@ -7,7 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
 import ron.thewizard.roleplayextras.modules.RoleplayExtrasModule;
 import ron.thewizard.roleplayextras.utils.KyoriUtil;
-import ron.thewizard.roleplayextras.utils.Permissions;
+import ron.thewizard.roleplayextras.utils.PluginPermission;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
@@ -93,7 +93,7 @@ public final class RoleplayExtras extends JavaPlugin {
         }
 
         // Register permissions so they show up in managers
-        Permissions.registerAll(getServer().getPluginManager());
+        PluginPermission.registerAll(getServer().getPluginManager());
         logger.info("Done");
     }
 
@@ -101,7 +101,7 @@ public final class RoleplayExtras extends JavaPlugin {
     public void onDisable() {
         PluginYMLCmd.disableAll();
         RoleplayExtrasModule.disableAll();
-        Permissions.unregisterAll(getServer().getPluginManager());
+        PluginPermission.unregisterAll(getServer().getPluginManager());
         if (isPacketEventsInstalled) {
             PacketEvents.getAPI().terminate();
         }

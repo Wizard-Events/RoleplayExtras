@@ -4,7 +4,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 
-public enum Permissions {
+public enum PluginPermission {
 
     RELOAD_CMD(new Permission("rpextras.cmd.reload", PermissionDefault.OP)),
     VERSION_CMD(new Permission("rpextras.cmd.version", PermissionDefault.OP)),
@@ -13,31 +13,27 @@ public enum Permissions {
 
     private final Permission permission;
 
-    Permissions(Permission permission) {
+    PluginPermission(Permission permission) {
         this.permission = permission;
     }
 
-    public Permission bukkit() {
+    public Permission get() {
         return permission;
     }
 
-    public String string() {
-        return permission.getName();
-    }
-
     public static void registerAll(PluginManager pluginManager) {
-        for (Permissions perm : Permissions.values()) {
+        for (PluginPermission perm : PluginPermission.values()) {
             try {
-                pluginManager.addPermission(perm.bukkit());
+                pluginManager.addPermission(perm.get());
             } catch (IllegalArgumentException ignored) {
             }
         }
     }
 
     public static void unregisterAll(PluginManager pluginManager) {
-        for (Permissions perm : Permissions.values()) {
+        for (PluginPermission perm : PluginPermission.values()) {
             try {
-                pluginManager.removePermission(perm.bukkit());
+                pluginManager.removePermission(perm.get());
             } catch (IllegalArgumentException ignored) {
             }
         }

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
 import ron.thewizard.roleplayextras.utils.KyoriUtil;
-import ron.thewizard.roleplayextras.utils.Permissions;
+import ron.thewizard.roleplayextras.utils.PluginPermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,11 +28,11 @@ public class WalkSpeedCmd extends PluginYMLCmd {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 1 && sender.hasPermission(Permissions.WALKSPEED_CMD_SELF.bukkit())) {
+        if (args.length == 1 && sender.hasPermission(PluginPermission.WALKSPEED_CMD_SELF.get())) {
             return speedSuggestions;
         }
 
-        if (args.length == 2 && sender.hasPermission(Permissions.WALKSPEED_CMD_OTHER.bukkit())) {
+        if (args.length == 2 && sender.hasPermission(PluginPermission.WALKSPEED_CMD_OTHER.get())) {
             Stream<String> onlinePlayers = Bukkit.getOnlinePlayers().stream().map(Player::getName);
             return (args[1].isBlank() ? onlinePlayers : onlinePlayers.filter(playerName -> playerName.contains(args[1]))).toList();
         }
@@ -42,8 +42,8 @@ public class WalkSpeedCmd extends PluginYMLCmd {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        final boolean canChangeOwn = sender.hasPermission(Permissions.WALKSPEED_CMD_SELF.bukkit());
-        final boolean canChangeOthers = sender.hasPermission(Permissions.WALKSPEED_CMD_OTHER.bukkit());
+        final boolean canChangeOwn = sender.hasPermission(PluginPermission.WALKSPEED_CMD_SELF.get());
+        final boolean canChangeOthers = sender.hasPermission(PluginPermission.WALKSPEED_CMD_OTHER.get());
 
         if (!canChangeOwn && !canChangeOthers) {
             RoleplayExtras.config().cmd_no_permission.forEach(sender::sendMessage);
