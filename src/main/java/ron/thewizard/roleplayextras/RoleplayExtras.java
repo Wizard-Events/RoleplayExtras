@@ -93,7 +93,7 @@ public final class RoleplayExtras extends JavaPlugin {
         }
 
         // Register permissions so they show up in managers
-        PluginPermission.registerAll(getServer().getPluginManager());
+        PluginPermission.registerAll();
         logger.info("Done");
     }
 
@@ -101,7 +101,7 @@ public final class RoleplayExtras extends JavaPlugin {
     public void onDisable() {
         PluginYMLCmd.disableAll();
         RoleplayExtrasModule.disableAll();
-        PluginPermission.unregisterAll(getServer().getPluginManager());
+        PluginPermission.unregisterAll();
         if (isPacketEventsInstalled) {
             PacketEvents.getAPI().terminate();
         }
