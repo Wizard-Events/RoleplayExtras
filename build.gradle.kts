@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "ron.thewizard"
-version = "1.2.2"
+version = "1.2.3"
 description = "Gameplay alterations for wizard event rp."
 
 repositories {
