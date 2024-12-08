@@ -9,7 +9,9 @@ public enum PluginPermission {
     RELOAD_CMD(new Permission("rpextras.cmd.reload", PermissionDefault.OP)),
     VERSION_CMD(new Permission("rpextras.cmd.version", PermissionDefault.OP)),
     WALKSPEED_CMD_SELF(new Permission("rpextras.cmd.walkspeed.self", PermissionDefault.OP)),
-    WALKSPEED_CMD_OTHER(new Permission("rpextras.cmd.walkspeed.other", PermissionDefault.OP));
+    WALKSPEED_CMD_OTHER(new Permission("rpextras.cmd.walkspeed.other", PermissionDefault.OP)),
+    VOICEPITCH_CMD_SELF(new Permission("rpextras.cmd.voicepitch.self", PermissionDefault.OP)),
+    VOICEPITCH_CMD_OTHER(new Permission("rpextras.cmd.voicepitch.other", PermissionDefault.OP));
 
     private final Permission permission;
 

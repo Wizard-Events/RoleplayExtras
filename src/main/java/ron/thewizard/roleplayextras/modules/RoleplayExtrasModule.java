@@ -84,7 +84,11 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
                     ENABLED_MODULES.add(module);
                 }
             } catch (Throwable t) { // This is not laziness. We want to catch everything here if it fails to init
-                RoleplayExtras.logger().warn("Failed initialising module class '{}'.", moduleClass.getSimpleName(), t);
+                if (t.getCause() instanceof NoClassDefFoundError) {
+                    RoleplayExtras.logger().info("Dependencies for module class {} missing, not enabling.", moduleClass.getSimpleName());
+                } else {
+                    RoleplayExtras.logger().warn("Failed initialising module class '{}'.", moduleClass.getSimpleName(), t);
+                }
             }
         }
 

@@ -53,8 +53,12 @@ public abstract class PluginYMLCmd extends BaseCommand implements Enableable, Di
                 PluginYMLCmd pluginYMLCmd = clazz.getDeclaredConstructor().newInstance();
                 pluginYMLCmd.enable();
                 ENABLED_COMMANDS.add(pluginYMLCmd);
-            } catch (Throwable t) { // This is not laziness. We want to catch everything here if it fails to init
-                RoleplayExtras.logger().warn("Failed initialising command class '{}'.", clazz.getSimpleName(), t);
+            } catch (Throwable t) {
+                if (t.getCause() instanceof NoClassDefFoundError) {
+                    RoleplayExtras.logger().info("Dependencies for command class {} missing, not enabling.", clazz.getSimpleName());
+                } else {
+                    RoleplayExtras.logger().warn("Failed initialising command class '{}'.", clazz.getSimpleName(), t);
+                }
             }
         }
 

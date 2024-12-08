@@ -15,7 +15,8 @@ public final class RoleplayConfig {
     private final @NotNull ConfigFile configFile;
 
     public final @NotNull List<Component> cmd_no_permission, walkspeed_invalid_speed_format, walkspeed_invalid_speed,
-            walkspeed_success_self, walkspeed_success_other;
+            walkspeed_success_self, walkspeed_success_other, voicepitch_invalid_pitch_format, voicepitch_invalid_pitch,
+            voicepitch_success_self, voicepitch_success_other;
 
     public RoleplayConfig() throws Exception {
         RoleplayExtras plugin = RoleplayExtras.getInstance();
@@ -39,6 +40,15 @@ public final class RoleplayConfig {
                 List.of("<#78E05E>Successfully set walkspeed to %walkspeed%."));
         this.walkspeed_success_other = getMessage("messages.cmd.walkspeed.success-other",
                 List.of("<#78E05E>Successfully set %player%'s walkspeed to %walkspeed%."));
+
+        this.voicepitch_invalid_pitch = getMessage("messages.cmd.voicepitch.invalid-speed",
+                List.of("<#FF334E>Invalid pitch! Must be a whole number that is not 0!"));
+        this.voicepitch_invalid_pitch_format = getMessage("messages.cmd.voicepitch.invalid-speed-format",
+                List.of("<#FF334E>Invalid pitch! Format: #"));
+        this.voicepitch_success_self = getMessage("messages.cmd.voicepitch.success-self",
+                List.of("<#78E05E>Successfully set voicepitch to %voicepitch%."));
+        this.voicepitch_success_other = getMessage("messages.cmd.voicepitch.success-other",
+                List.of("<#78E05E>Successfully set %player%'s voicepitch to %voicepitch%."));
     }
 
     public boolean saveConfig() {
