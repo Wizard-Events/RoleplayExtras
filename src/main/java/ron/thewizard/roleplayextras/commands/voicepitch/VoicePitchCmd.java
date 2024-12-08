@@ -8,7 +8,6 @@ import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerConnectedEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
-import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 import de.maxhenkel.voicechat.api.opus.OpusDecoder;
 import de.maxhenkel.voicechat.api.opus.OpusEncoder;
 import de.maxhenkel.voicechat.api.packets.EntitySoundPacket;
@@ -37,8 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class VoicePitchCmd extends PluginYMLCmd implements VoicechatPlugin {
-
-    private VoicechatServerApi voicechatServerApi;
 
     private NamespacedKey voicePitchKey;
     private List<String> pitchSuggestions;
@@ -98,7 +95,6 @@ public class VoicePitchCmd extends PluginYMLCmd implements VoicechatPlugin {
             cachedPitchSettings = null;
         }
         pitchSuggestions = null;
-        voicechatServerApi = null;
     }
 
     @Override
@@ -202,14 +198,9 @@ public class VoicePitchCmd extends PluginYMLCmd implements VoicechatPlugin {
 
     @Override
     public void registerEvents(EventRegistration eventRegistration) {
-        eventRegistration.registerEvent(VoicechatServerStartedEvent.class, this::onServerStarted);
         eventRegistration.registerEvent(PlayerConnectedEvent.class, this::onPlayerConnected);
         eventRegistration.registerEvent(PlayerDisconnectedEvent.class, this::onPlayerDisconnected);
         eventRegistration.registerEvent(MicrophonePacketEvent.class, this::onMicrophonePacket);
-    }
-
-    private void onServerStarted(VoicechatServerStartedEvent event) {
-        voicechatServerApi = event.getVoicechat();
     }
 
     private void onPlayerConnected(PlayerConnectedEvent event) {
@@ -236,14 +227,14 @@ public class VoicePitchCmd extends PluginYMLCmd implements VoicechatPlugin {
         if (event.getSenderConnection() == null) return;
         if (!(event.getSenderConnection().getPlayer().getPlayer() instanceof Player speakingPlayer)) return;
 
-        final short voiceChatPitch = getVoiceChatPitch(speakingPlayer);
-        if (voiceChatPitch == 1 || voiceChatPitch == 0) return;
+        final short pitch = getVoiceChatPitch(speakingPlayer);
+        if (pitch == 1 || pitch == 0) return;
 
         event.cancel(); // Cancel microphone packet event so we can adjust pitch and then send it ourselves
 
         final EntitySoundPacket pitchedSoundPacket = event.getPacket().entitySoundPacketBuilder()
                 .entityUuid(speakingPlayer.getUniqueId())
-                .opusEncodedData(pitchAudio(event.getPacket().getOpusEncodedData(), speakingPlayer, voiceChatPitch))
+                .opusEncodedData(pitchAudio(speakingPlayer, pitch, event.getVoicechat(), event.getPacket().getOpusEncodedData()))
                 .build();
 
         for (Player listeningPlayer : speakingPlayer.getWorld().getPlayers()) {
@@ -259,13 +250,13 @@ public class VoicePitchCmd extends PluginYMLCmd implements VoicechatPlugin {
         }
     }
 
-    private byte[] pitchAudio(byte[] opusEncodedData, Player player, short pitch) {
-        short[] decodedData = decoderMap.computeIfAbsent(player.getUniqueId(), k -> voicechatServerApi.createDecoder()).decode(opusEncodedData);
+    private byte[] pitchAudio(Player player, short pitch, VoicechatServerApi serverApi, byte[] opusEncodedData) {
+        short[] decodedData = decoderMap.computeIfAbsent(player.getUniqueId(), k -> serverApi.createDecoder()).decode(opusEncodedData);
         short[] pitchedData = new short[decodedData.length];
         for (int i = 0; i < decodedData.length; i++) {
             pitchedData[i] = i * pitch < decodedData.length ? (decodedData[i * pitch]) : 0;
         }
-        return encoderMap.computeIfAbsent(player.getUniqueId(), k -> voicechatServerApi.createEncoder()).encode(pitchedData);
+        return encoderMap.computeIfAbsent(player.getUniqueId(), k -> serverApi.createEncoder()).encode(pitchedData);
     }
 
     private short getVoiceChatPitch(Player player) {
