@@ -19,4 +19,30 @@ public class EntityUtil {
                 (RoleplayExtras.getRandom().nextFloat() * disperseIntensity) + 0.25D,
                 (RoleplayExtras.getRandom().nextFloat() * disperseIntensity) + 0.25D), itemStack, function);
     }
+
+    public static void cloneItemProperties(Item from, Item to) {
+        to.setGravity(from.hasGravity());
+        to.setVelocity(from.getVelocity());
+        to.setFallDistance(from.getFallDistance());
+        to.setFrictionState(from.getFrictionState());
+
+        to.setOwner(from.getOwner());
+        to.setThrower(from.getThrower());
+        to.customName(from.customName());
+        to.setCustomNameVisible(from.isCustomNameVisible());
+
+        to.setWillAge(from.willAge());
+        to.setHealth(from.getHealth());
+        to.setInvulnerable(from.isInvulnerable());
+        to.setUnlimitedLifetime(from.isUnlimitedLifetime());
+
+        to.setGlowing(from.isGlowing());
+        to.setFireTicks(from.getFireTicks());
+        to.setVisualFire(from.isVisualFire());
+        to.setVisibleByDefault(from.isVisibleByDefault());
+
+        to.setSilent(from.isSilent());
+        to.setPersistent(from.isPersistent());
+        to.setPortalCooldown(from.getPortalCooldown());
+    }
 }

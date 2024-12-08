@@ -72,41 +72,16 @@ public class DontMergeItems extends RoleplayExtrasModule implements Listener {
         *  I am the one who drops.*/
 
         ItemStack singleItemStack = mergedItemStack.asOne();
+
         for (int i = 0; i < mergedItemStack.getAmount(); i++) {
             // Spawn single item with a natural feeling, random location offset.
             // We won't have to schedule this because on Folia, Entity Events are executed on the Entity's Thread
             EntityUtil.dropItemNaturally(mergedItem.getLocation(), disperseIntensity, singleItemStack, singleItem -> {
                 // Try to respect all the original item's properties
-                copyProperties(mergedItem, singleItem);
+                EntityUtil.cloneItemProperties(mergedItem, singleItem);
                 // Require minimum pickup delay to prevent picking things back up immediately
                 singleItem.setPickupDelay(Math.max(singleItem.getPickupDelay(), minPickupDelayTicks));
             });
         }
-    }
-
-    private void copyProperties(Item from, Item to) {
-        to.setGravity(from.hasGravity());
-        to.setVelocity(from.getVelocity());
-        to.setFallDistance(from.getFallDistance());
-        to.setFrictionState(from.getFrictionState());
-
-        to.setOwner(from.getOwner());
-        to.setThrower(from.getThrower());
-        to.customName(from.customName());
-        to.setCustomNameVisible(from.isCustomNameVisible());
-
-        to.setWillAge(from.willAge());
-        to.setHealth(from.getHealth());
-        to.setInvulnerable(from.isInvulnerable());
-        to.setUnlimitedLifetime(from.isUnlimitedLifetime());
-
-        to.setGlowing(from.isGlowing());
-        to.setFireTicks(from.getFireTicks());
-        to.setVisualFire(from.isVisualFire());
-        to.setVisibleByDefault(from.isVisibleByDefault());
-
-        to.setSilent(from.isSilent());
-        to.setPersistent(from.isPersistent());
-        to.setPortalCooldown(from.getPortalCooldown());
     }
 }
