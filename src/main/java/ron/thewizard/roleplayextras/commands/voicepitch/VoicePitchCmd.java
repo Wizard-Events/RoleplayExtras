@@ -62,7 +62,7 @@ public class VoicePitchCmd extends PluginYMLCmd implements VoicechatPlugin {
 
         Collection<? extends Player> onlinePlayers = RoleplayExtras.getInstance().getServer().getOnlinePlayers();
 
-        cachedPitchSettings = new ConcurrentHashMap<>();
+        cachedPitchSettings = new ConcurrentHashMap<>(onlinePlayers.size());
         for (Player onlinePlayer : onlinePlayers) {
             cachedPitchSettings.put(onlinePlayer.getUniqueId(), getVoiceChatPitch(onlinePlayer));
         }
