@@ -1,7 +1,5 @@
 package ron.thewizard.roleplayextras;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
@@ -20,34 +18,19 @@ import java.util.stream.Stream;
 public final class RoleplayExtras extends JavaPlugin {
 
     private static RoleplayExtras instance;
-    private static ComponentLogger logger;
     private static RoleplayConfig config;
 
     private static CommandRegistration commandRegistration;
     private static GracefulScheduling scheduling;
+
+    private static ComponentLogger logger;
     private static Random random;
-
-    private static boolean isPacketEventsInstalled;
-
-    @Override
-    public void onLoad() {
-        isPacketEventsInstalled = getServer().getPluginManager().getPlugin("packetevents") != null;
-        if (isPacketEventsInstalled) {
-            PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-            PacketEvents.getAPI().getSettings()
-                    .kickOnPacketException(true) // Just in case that exception comes with a bit of oomph
-                    .reEncodeByDefault(false) // We don't always alter packets, therefore unnecessary
-                    .downsampleColors(false) // Just in case, should be off by default for 1.20+
-                    .checkForUpdates(false).bStats(false); // The voices wouldn't stop otherwise
-            PacketEvents.getAPI().load();
-        }
-    }
 
     @Override
     public void onEnable() {
         logger = getComponentLogger();
 
-        if (!isPacketEventsInstalled) {
+        if (getServer().getPluginManager().getPlugin("packetevents") != null) {
             Stream.of("                                                               ",
                     "       _   _   _             _   _                             ",
                     "      / \\ | |_| |_ ___ _ __ | |_(_) ___  _ __                 ",
@@ -72,14 +55,7 @@ public final class RoleplayExtras extends JavaPlugin {
         scheduling = morePaperLib.scheduling();
         random = new Random();
 
-        try {
-            Files.createDirectories(getDataFolder().toPath());
-        } catch (Throwable t) {
-            logger.error("Failed to create plugin directory! Cannot enable!", t);
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
+        logger.info("Loading config");
         if (!reloadConfiguration()) {
             // If first ever reload fails, there's likely a bigger issue going on
             getServer().getPluginManager().disablePlugin(this);
@@ -93,6 +69,7 @@ public final class RoleplayExtras extends JavaPlugin {
         }
 
         // Register permissions so they show up in managers
+        logger.info("Registering permissions");
         PluginPermission.registerAll();
         logger.info("Done");
     }
@@ -102,9 +79,6 @@ public final class RoleplayExtras extends JavaPlugin {
         PluginYMLCmd.disableAll();
         RoleplayExtrasModule.disableAll();
         PluginPermission.unregisterAll();
-        if (isPacketEventsInstalled) {
-            PacketEvents.getAPI().terminate();
-        }
         if (scheduling != null) {
             scheduling.cancelGlobalTasks();
             scheduling = null;

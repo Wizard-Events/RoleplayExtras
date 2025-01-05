@@ -18,6 +18,3 @@ commands:
   walkspeed:
     usage: /walkspeed <speed> (player)
     description: Sets walking speed
-  voicepitch:
-    usage: /voicepitch <pitch> (player)
-    description: Sets voice pitch
