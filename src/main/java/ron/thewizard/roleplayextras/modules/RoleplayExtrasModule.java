@@ -32,7 +32,7 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
                 .map(clazz -> (Class<RoleplayExtrasModule>) clazz)
                 .sorted(Comparator.comparing(Class::getSimpleName))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableSet::copyOf));
-        ENABLED_MODULES = new HashSet<>();
+        ENABLED_MODULES = new HashSet<>(AVAILABLE_MODULES.size());
     }
 
     protected final RoleplayExtras plugin;

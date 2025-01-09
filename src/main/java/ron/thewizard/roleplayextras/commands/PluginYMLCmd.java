@@ -13,6 +13,7 @@ import ron.thewizard.roleplayextras.utils.Enableable;
 import java.lang.reflect.Modifier;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,15 +30,15 @@ public abstract class PluginYMLCmd extends BaseCommand implements Enableable, Di
                 .map(clazz -> (Class<PluginYMLCmd>) clazz)
                 .sorted(Comparator.comparing(Class::getSimpleName))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableSet::copyOf));
-        ENABLED_COMMANDS = new HashSet<>();
+        ENABLED_COMMANDS = new HashSet<>(AVAILABLE_COMMANDS.size());
     }
 
     public final PluginCommand pluginCommand;
 
     protected PluginYMLCmd(@NotNull String label) throws CommandException {
         super(label);
-        pluginCommand = RoleplayExtras.getInstance().getCommand(label);
-        if (pluginCommand == null) throw new CommandException("Command '/" + label + "' cannot be enabled because it's not defined in the plugin.yml.");
+        this.pluginCommand = Objects.requireNonNull(RoleplayExtras.getInstance().getCommand(label),
+                "Command '/" + label + "' cannot be enabled because it's not defined in the plugin.yml.");
     }
 
     public static void disableAll() {

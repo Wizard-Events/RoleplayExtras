@@ -1,11 +1,11 @@
 plugins {
     java
-    id("com.gradleup.shadow") version ("8.3.2")
+    id("com.gradleup.shadow") version ("8.3.5")
 }
 
 group = "ron.thewizard"
 version = "1.3.0"
-description = "Gameplay alterations for wizard event rp."
+description = "Gameplay alterations for wizard event roleplay."
 
 repositories {
     mavenCentral()
@@ -29,16 +29,12 @@ repositories {
     maven("https://mvn-repo.arim.space/lesser-gpl3/") {
         name = "arim-mvn-lgpl3"
     }
-
-    maven("https://maven.maxhenkel.de/repository/public") {
-        name = "henkelmax-public"
-    }
 }
 
 dependencies {
-    compileOnly("org.purpurmc.purpur:purpur-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur:purpur-api:1.21.3-R0.1-SNAPSHOT")
     compileOnly("com.github.retrooper:packetevents-spigot:2.7.0")
-    compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
+    compileOnly("org.apache.logging.log4j:log4j-core:2.24.3")
 
     implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-rc.3")
     implementation("space.arim.morepaperlib:morepaperlib:0.4.3")
