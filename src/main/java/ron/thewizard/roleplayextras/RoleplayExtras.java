@@ -30,7 +30,7 @@ public final class RoleplayExtras extends JavaPlugin {
     public void onEnable() {
         logger = getComponentLogger();
 
-        if (getServer().getPluginManager().getPlugin("packetevents") != null) {
+        if (getServer().getPluginManager().getPlugin("packetevents") == null) {
             Stream.of("                                                               ",
                     "       _   _   _             _   _                             ",
                     "      / \\ | |_| |_ ___ _ __ | |_(_) ___  _ __                 ",
