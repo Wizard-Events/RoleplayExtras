@@ -37,8 +37,8 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
         while (iterator.hasNext()) {
             if (iterator.next() instanceof Player receiver) {
                 // Check if worlds are the same so distanceSquared doesn't throw an IllegalArgumentException
-                if (receiver.getWorld().getUID().equals(sender.getWorld().getUID())
-                        && receiver.getLocation().distanceSquared(sender.getLocation()) > maxDistanceSquared) {
+                if (!receiver.getWorld().getUID().equals(sender.getWorld().getUID())
+                        || receiver.getLocation().distanceSquared(sender.getLocation()) > maxDistanceSquared) {
                     iterator.remove(); // Remove chat receiver if they are out of reach
                 }
             }
