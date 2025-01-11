@@ -12,7 +12,7 @@ import ron.thewizard.roleplayextras.utils.PluginPermission;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
 
 public class RPExtrasCmd extends PluginYMLCmd {
 
@@ -32,7 +32,9 @@ public class RPExtrasCmd extends PluginYMLCmd {
         }
 
         if (args.length == 1) {
-            return tabCompletes;
+            return tabCompletes.stream()
+                    .filter(cmd -> cmd.toLowerCase(Locale.ROOT).startsWith(args[0].toLowerCase(Locale.ROOT)))
+                    .toList();
         }
 
         if (args.length > 1) {
@@ -41,8 +43,6 @@ public class RPExtrasCmd extends PluginYMLCmd {
                     return subCommand.onTabComplete(sender, command, label, args);
                 }
             }
-
-            return tabCompletes.stream().filter(cmd -> cmd.startsWith(args[0])).collect(Collectors.toList());
         }
 
         return Collections.emptyList();
