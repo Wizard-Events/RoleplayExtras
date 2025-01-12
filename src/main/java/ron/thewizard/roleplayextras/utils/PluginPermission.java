@@ -11,7 +11,8 @@ public enum PluginPermission {
     WALKSPEED_CMD_SELF(new Permission("rpextras.cmd.walkspeed.self", PermissionDefault.OP)),
     WALKSPEED_CMD_OTHER(new Permission("rpextras.cmd.walkspeed.other", PermissionDefault.OP)),
     VOICEPITCH_CMD_SELF(new Permission("rpextras.cmd.voicepitch.self", PermissionDefault.OP)),
-    VOICEPITCH_CMD_OTHER(new Permission("rpextras.cmd.voicepitch.other", PermissionDefault.OP));
+    VOICEPITCH_CMD_OTHER(new Permission("rpextras.cmd.voicepitch.other", PermissionDefault.OP)),
+    BYPASS_CHAT_PROXIMITY(new Permission("rpextras.bypass.chatproximity", PermissionDefault.FALSE));
 
     private final Permission permission;
 
