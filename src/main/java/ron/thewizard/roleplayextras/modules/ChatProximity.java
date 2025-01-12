@@ -16,8 +16,8 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
     private final double maxDistanceSquared;
 
     public ChatProximity() {
-        super("misc.text-chat-proximity", false);
-        this.maxDistanceSquared = NumberConversions.square(config.getDouble(configPath + ".max-block-distance", 15));
+        super("gameplay.text-chat-proximity", true);
+        this.maxDistanceSquared = NumberConversions.square(config.getDouble(configPath + ".max-block-distance", 13));
     }
 
     @Override
