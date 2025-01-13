@@ -1,8 +1,8 @@
 package ron.thewizard.roleplayextras.utils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import ron.thewizard.roleplayextras.RoleplayExtras;
 
 public enum PluginPermission {
 
@@ -27,18 +27,16 @@ public enum PluginPermission {
     public static void registerAll() {
         for (PluginPermission pluginPermission : PluginPermission.values()) {
             try {
-                Bukkit.getPluginManager().addPermission(pluginPermission.get());
-            } catch (IllegalArgumentException ignored) {
+                RoleplayExtras.getInstance().getServer().getPluginManager().addPermission(pluginPermission.get());
+            } catch (IllegalArgumentException e) {
+                RoleplayExtras.logger().warn("Permission '{}' is already registered.", pluginPermission.get().getName());
             }
         }
     }
 
     public static void unregisterAll() {
         for (PluginPermission pluginPermission : PluginPermission.values()) {
-            try {
-                Bukkit.getPluginManager().removePermission(pluginPermission.get());
-            } catch (IllegalArgumentException ignored) {
-            }
+            RoleplayExtras.getInstance().getServer().getPluginManager().removePermission(pluginPermission.get());
         }
     }
 }
