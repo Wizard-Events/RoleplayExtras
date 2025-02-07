@@ -8,7 +8,6 @@ import ron.thewizard.roleplayextras.commands.BaseCommand;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
 import ron.thewizard.roleplayextras.commands.rpextras.subcommands.ReloadSubCmd;
 import ron.thewizard.roleplayextras.commands.rpextras.subcommands.VersionSubCmd;
-import ron.thewizard.roleplayextras.utils.PluginPermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,10 +26,6 @@ public class RPExtrasCmd extends PluginYMLCmd {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission(PluginPermission.VERSION_CMD.get()) && !sender.hasPermission(PluginPermission.RELOAD_CMD.get())) {
-            return Collections.emptyList();
-        }
-
         if (args.length == 1) {
             return tabCompletes.stream()
                     .filter(cmd -> cmd.toLowerCase(Locale.ROOT).startsWith(args[0].toLowerCase(Locale.ROOT)))
@@ -50,10 +45,6 @@ public class RPExtrasCmd extends PluginYMLCmd {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission(PluginPermission.VERSION_CMD.get()) && !sender.hasPermission(PluginPermission.RELOAD_CMD.get())) {
-            return true;
-        }
-
         if (args.length > 0) {
             for (BaseCommand subCommand : subCommands) {
                 if (args[0].equalsIgnoreCase(subCommand.label())) {
