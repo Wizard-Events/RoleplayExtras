@@ -82,6 +82,10 @@ public final class RoleplayExtras extends JavaPlugin {
         PluginYMLCmd.disableAll();
         RoleplayExtrasModule.disableAll();
         PluginPermission.unregisterAll();
+        if (permissionHandler != null) {
+            permissionHandler.disable();
+            permissionHandler = null;
+        }
         if (scheduling != null) {
             scheduling.cancelGlobalTasks();
             scheduling = null;
