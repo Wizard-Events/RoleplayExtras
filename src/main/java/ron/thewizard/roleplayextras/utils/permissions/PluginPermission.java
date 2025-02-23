@@ -1,5 +1,6 @@
-package ron.thewizard.roleplayextras.utils;
+package ron.thewizard.roleplayextras.utils.permissions;
 
+import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import ron.thewizard.roleplayextras.RoleplayExtras;
@@ -20,23 +21,27 @@ public enum PluginPermission {
         this.permission = permission;
     }
 
-    public Permission get() {
+    public Permission bukkit() {
         return permission;
+    }
+
+    public boolean test(Permissible permissible) {
+        return RoleplayExtras.permissions().permissionValue(permissible, permission.getName()).toBoolean();
     }
 
     public static void registerAll() {
         for (PluginPermission pluginPermission : PluginPermission.values()) {
             try {
-                RoleplayExtras.getInstance().getServer().getPluginManager().addPermission(pluginPermission.get());
+                RoleplayExtras.getInstance().getServer().getPluginManager().addPermission(pluginPermission.bukkit());
             } catch (IllegalArgumentException e) {
-                RoleplayExtras.logger().warn("Permission '{}' is already registered.", pluginPermission.get().getName());
+                RoleplayExtras.logger().warn("Permission '{}' is already registered.", pluginPermission.bukkit().getName());
             }
         }
     }
 
     public static void unregisterAll() {
         for (PluginPermission pluginPermission : PluginPermission.values()) {
-            RoleplayExtras.getInstance().getServer().getPluginManager().removePermission(pluginPermission.get());
+            RoleplayExtras.getInstance().getServer().getPluginManager().removePermission(pluginPermission.bukkit());
         }
     }
 }

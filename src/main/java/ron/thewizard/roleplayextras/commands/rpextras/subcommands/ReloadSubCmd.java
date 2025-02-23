@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import ron.thewizard.roleplayextras.commands.BaseCommand;
 import ron.thewizard.roleplayextras.utils.KyoriUtil;
-import ron.thewizard.roleplayextras.utils.PluginPermission;
+import ron.thewizard.roleplayextras.utils.permissions.PluginPermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +25,7 @@ public class ReloadSubCmd extends BaseCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission(PluginPermission.RELOAD_CMD.get())) {
+        if (!sender.hasPermission(PluginPermission.RELOAD_CMD.bukkit())) {
             RoleplayExtras.config().cmd_no_permission.forEach(sender::sendMessage);
             return true;
         }

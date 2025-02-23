@@ -8,7 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.util.NumberConversions;
-import ron.thewizard.roleplayextras.utils.PluginPermission;
+import ron.thewizard.roleplayextras.utils.permissions.PluginPermission;
 
 import java.util.Iterator;
 
@@ -33,10 +33,12 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(AsyncChatEvent event) {
+        if (PluginPermission.BYPASS_CHAT_PROXIMITY.test(event.getPlayer())) return;
+
         Iterator<Audience> audienceIterator = event.viewers().iterator();
         while (audienceIterator.hasNext()) {
             if (audienceIterator.next() instanceof Player messageReceiver
-                    && !messageReceiver.hasPermission(PluginPermission.BYPASS_CHAT_PROXIMITY.get())) {
+                    && !PluginPermission.BYPASS_CHAT_PROXIMITY.test(messageReceiver)) {
                 // Check if worlds are the same so distanceSquared never throws an IllegalArgumentException
                 if (!messageReceiver.getWorld().getUID().equals(event.getPlayer().getWorld().getUID())
                         || messageReceiver.getLocation().distanceSquared(event.getPlayer().getLocation()) > maxDistanceSquared) {

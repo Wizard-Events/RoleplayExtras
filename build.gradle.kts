@@ -35,6 +35,7 @@ dependencies {
     compileOnly("org.purpurmc.purpur:purpur-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("com.github.retrooper:packetevents-spigot:2.7.0")
     compileOnly("org.apache.logging.log4j:log4j-core:2.24.3")
+    compileOnly("net.luckperms:api:5.4")
 
     implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-rc.3")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")

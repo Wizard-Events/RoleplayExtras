@@ -5,7 +5,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
 import ron.thewizard.roleplayextras.modules.RoleplayExtrasModule;
 import ron.thewizard.roleplayextras.utils.KyoriUtil;
-import ron.thewizard.roleplayextras.utils.PluginPermission;
+import ron.thewizard.roleplayextras.utils.permissions.PermissionHandler;
+import ron.thewizard.roleplayextras.utils.permissions.PluginPermission;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
@@ -22,6 +23,7 @@ public final class RoleplayExtras extends JavaPlugin {
 
     private static CommandRegistration commandRegistration;
     private static GracefulScheduling scheduling;
+    private static PermissionHandler permissionHandler;
 
     private static ComponentLogger logger;
     private static Random random;
@@ -50,6 +52,7 @@ public final class RoleplayExtras extends JavaPlugin {
         }
 
         instance = this;
+        permissionHandler = PermissionHandler.create(instance);
         MorePaperLib morePaperLib = new MorePaperLib(instance);
         commandRegistration = morePaperLib.commandRegistration();
         scheduling = morePaperLib.scheduling();
@@ -108,6 +111,10 @@ public final class RoleplayExtras extends JavaPlugin {
 
     public static GracefulScheduling scheduling() {
         return scheduling;
+    }
+
+    public static PermissionHandler permissions() {
+        return permissionHandler;
     }
 
     public static Random getRandom() {
