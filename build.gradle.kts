@@ -1,10 +1,10 @@
 plugins {
     java
-    id("com.gradleup.shadow") version ("8.3.5")
+    id("com.gradleup.shadow") version ("9.0.0-beta6")
 }
 
 group = "ron.thewizard"
-version = "1.3.2"
+version = "1.4.0"
 description = "Gameplay alterations for wizard event roleplay."
 
 repositories {
@@ -39,7 +39,6 @@ dependencies {
 
     implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-rc.3")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
-    implementation("space.arim.morepaperlib:morepaperlib:0.4.3")
     implementation("org.reflections:reflections:0.10.2")
 }
 
@@ -80,7 +79,6 @@ tasks {
 
         relocate("com.github.benmanes.caffeine", "ron.thewizard.roleplayextras.libs.caffeine")
         relocate("io.github.thatsmusic99.configurationmaster", "ron.thewizard.roleplayextras.libs.configmaster")
-        relocate("space.arim.morepaperlib", "ron.thewizard.roleplayextras.libs.morepaperlib")
         relocate("org.reflections", "ron.thewizard.roleplayextras.libs.reflections")
     }
 }

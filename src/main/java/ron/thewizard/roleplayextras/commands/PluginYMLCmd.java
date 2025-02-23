@@ -72,6 +72,6 @@ public abstract class PluginYMLCmd extends BaseCommand implements Enableable, Di
 
     @Override
     public void disable() {
-        pluginCommand.unregister(RoleplayExtras.cmdRegistration().getServerCommandMap());
+        pluginCommand.unregister(RoleplayExtras.getInstance().getServer().getCommandMap());
     }
 }

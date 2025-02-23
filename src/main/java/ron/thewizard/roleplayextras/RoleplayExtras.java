@@ -7,9 +7,6 @@ import ron.thewizard.roleplayextras.modules.RoleplayExtrasModule;
 import ron.thewizard.roleplayextras.utils.KyoriUtil;
 import ron.thewizard.roleplayextras.utils.permissions.PermissionHandler;
 import ron.thewizard.roleplayextras.utils.permissions.PluginPermission;
-import space.arim.morepaperlib.MorePaperLib;
-import space.arim.morepaperlib.commands.CommandRegistration;
-import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.nio.file.Files;
 import java.util.Calendar;
@@ -20,11 +17,7 @@ public final class RoleplayExtras extends JavaPlugin {
 
     private static RoleplayExtras instance;
     private static RoleplayConfig config;
-
-    private static CommandRegistration commandRegistration;
-    private static GracefulScheduling scheduling;
     private static PermissionHandler permissionHandler;
-
     private static ComponentLogger logger;
     private static Random random;
 
@@ -53,9 +46,6 @@ public final class RoleplayExtras extends JavaPlugin {
 
         instance = this;
         permissionHandler = PermissionHandler.create(instance);
-        MorePaperLib morePaperLib = new MorePaperLib(instance);
-        commandRegistration = morePaperLib.commandRegistration();
-        scheduling = morePaperLib.scheduling();
         random = new Random();
 
         logger.info("Loading config");
@@ -81,16 +71,13 @@ public final class RoleplayExtras extends JavaPlugin {
     public void onDisable() {
         PluginYMLCmd.disableAll();
         RoleplayExtrasModule.disableAll();
+        getServer().getGlobalRegionScheduler().cancelTasks(this);
+        getServer().getAsyncScheduler().cancelTasks(this);
         PluginPermission.unregisterAll();
         if (permissionHandler != null) {
             permissionHandler.disable();
             permissionHandler = null;
         }
-        if (scheduling != null) {
-            scheduling.cancelGlobalTasks();
-            scheduling = null;
-        }
-        commandRegistration = null;
         instance = null;
         random = null;
         config = null;
@@ -107,14 +94,6 @@ public final class RoleplayExtras extends JavaPlugin {
 
     public static RoleplayConfig config() {
         return config;
-    }
-
-    public static CommandRegistration cmdRegistration() {
-        return commandRegistration;
-    }
-
-    public static GracefulScheduling scheduling() {
-        return scheduling;
     }
 
     public static PermissionHandler permissions() {

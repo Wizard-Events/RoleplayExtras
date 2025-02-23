@@ -1,5 +1,6 @@
 package ron.thewizard.roleplayextras.modules;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,7 +16,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 import ron.thewizard.roleplayextras.RoleplayExtras;
-import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -171,8 +171,12 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         }
 
         // Schedule rope placement for cool and configurable visual
-        scheduling.regionSpecificScheduler(startBlock.getLocation())
-                .runAtFixedRate(new UnwindRopeTask(startBlock, minLength, maxLength), 1L, tickRate);
+        plugin.getServer().getRegionScheduler().runAtFixedRate(
+                plugin,
+                startBlock.getLocation(),
+                new UnwindRopeTask(startBlock, minLength, maxLength),
+                1L,
+                tickRate);
     }
 
     private static class UnwindRopeTask implements Consumer<ScheduledTask> {

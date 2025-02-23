@@ -9,7 +9,6 @@ import ron.thewizard.roleplayextras.RoleplayConfig;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import ron.thewizard.roleplayextras.utils.Disableable;
 import ron.thewizard.roleplayextras.utils.Enableable;
-import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.lang.reflect.Modifier;
 import java.util.Comparator;
@@ -37,7 +36,6 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
 
     protected final RoleplayExtras plugin;
     protected final RoleplayConfig config;
-    protected final GracefulScheduling scheduling;
     protected final String configPath, logFormat;
     protected final boolean enabled_in_config;
 
@@ -49,7 +47,6 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
         this.configPath = configPath;
         this.plugin = RoleplayExtras.getInstance();
         this.config = RoleplayExtras.config();
-        this.scheduling = RoleplayExtras.scheduling();
 
         if (comment == null || comment.isBlank()) {
             this.enabled_in_config = config.getBoolean(configPath + ".enable", defEnabled);

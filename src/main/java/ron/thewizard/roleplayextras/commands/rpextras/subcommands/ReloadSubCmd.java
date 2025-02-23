@@ -31,12 +31,13 @@ public class ReloadSubCmd extends BaseCommand {
         }
 
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("Reloading ...").color(KyoriUtil.wizardPurple));
-        RoleplayExtras.scheduling().asyncScheduler().run(() -> {
-            if (RoleplayExtras.getInstance().reloadConfiguration()) {
-                sender.sendMessage(Component.text("Reload complete!").color(KyoriUtil.wizardWhite));
+        sender.sendMessage(Component.text("Reloading ...", KyoriUtil.wizardPurple));
+        RoleplayExtras plugin = RoleplayExtras.getInstance();
+        plugin.getServer().getAsyncScheduler().runNow(plugin, reload -> {
+            if (plugin.reloadConfiguration()) {
+                sender.sendMessage(Component.text("Reload complete!", KyoriUtil.wizardWhite));
             } else {
-                sender.sendMessage(Component.text("Something went wrong!").color(KyoriUtil.wizardRed));
+                sender.sendMessage(Component.text("Something went wrong!", KyoriUtil.wizardRed));
             }
             sender.sendMessage(Component.empty());
         });

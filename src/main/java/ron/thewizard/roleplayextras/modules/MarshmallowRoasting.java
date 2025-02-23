@@ -1,5 +1,6 @@
 package ron.thewizard.roleplayextras.modules;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -11,16 +12,13 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import ron.thewizard.roleplayextras.RoleplayExtras;
-import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class MarshmallowRoasting extends RoleplayExtrasModule implements Listener {
 
-    private final Map<UUID, ScheduledTask> roastMap = new HashMap<>();
+    private final Map<Player, ScheduledTask> roastMap = new HashMap<>();
     private final Material marshmallowMaterial;
     private final long roastTimeTicks;
     private final int unroastedId, roastedId, radius;
@@ -64,15 +62,13 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
 
         if (!isMarshmallow(event.getItem(), unroastedId)) return;
 
-        final Player player = event.getPlayer();
-
-        roastMap.computeIfAbsent(player.getUniqueId(), uuid ->
-                RoleplayExtras.scheduling().entitySpecificScheduler(player).runDelayed(() -> {
+        roastMap.computeIfAbsent(event.getPlayer(), player ->
+                player.getScheduler().runDelayed(plugin, roastTask -> {
                     ItemStack mainHand = player.getInventory().getItemInMainHand();
                     if (isMarshmallow(mainHand, unroastedId) && isNearFire(player.getLocation())) {
                         mainHand.setCustomModelData(roastedId);
                     }
-                    roastMap.remove(uuid);
+                    roastMap.remove(player);
                 }, null, roastTimeTicks));
     }
 
