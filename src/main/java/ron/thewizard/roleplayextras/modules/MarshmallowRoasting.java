@@ -3,6 +3,7 @@ package ron.thewizard.roleplayextras.modules;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -13,21 +14,26 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class MarshmallowRoasting extends RoleplayExtrasModule implements Listener {
 
-    private final Map<Player, ScheduledTask> roastMap = new HashMap<>();
     private final Material marshmallowMaterial;
-    private final long roastTimeTicks;
-    private final int unroastedId, roastedId, radius;
+    private final Particle particleType;
+    private final long roastDurationTicks, initialDelayTicks, periodTicks;
+    private final double offsetY, speed, headDistance;
+    private final int unroastedId, roastedId, radius, particleCount;
+    private final boolean smokeWhileRoast, smokeOnFinish;
+
+    private Map<Player, ScheduledTask> roastMap = new ConcurrentHashMap<>();
 
     public MarshmallowRoasting() {
         super("gameplay.marshmallow-roasting", false, """
                 Right-clicking with the configured item will place smoke particles in front
                 of the players face.""");
-        this.roastTimeTicks = config.getLong(configPath + ".marshmallow.roast-time-ticks", 100L);
+        this.roastDurationTicks = config.getLong(configPath + ".marshmallow.roast-time-ticks", 100L);
         Material defaultMarshmallow = Material.SHIELD;
         Material configuredMallow;
         try {
@@ -39,37 +45,118 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
         this.unroastedId = config.getInt(configPath + ".marshmallow.unroasted-model", 9);
         this.roastedId = config.getInt(configPath + ".marshmallow.roasted-model", 10);
         this.radius = config.getInt(configPath + ".near-fire-search-radius", 3);
+
+        this.smokeWhileRoast = config.getBoolean(configPath + ".smoke-particles.while-roasting", true);
+        this.smokeOnFinish = config.getBoolean(configPath + ".smoke-particles.when-finished-roasting", true);
+
+        this.initialDelayTicks = config.getLong(configPath + ".smoke-particles.initial-delay", 20L);
+        this.periodTicks = config.getLong(configPath + ".smoke-particles.period-ticks", 30L);
+
+        Particle defaultParticle = Particle.POOF;
+        Particle configuredParticle;
+        try {
+            configuredParticle = Particle.valueOf(config.getString(configPath + ".smoke-particles.particle-type", defaultParticle.name()));
+        } catch (IllegalArgumentException e) {
+            configuredParticle = defaultParticle;
+        }
+        this.particleType = configuredParticle;
+        this.particleCount = config.getInt(configPath + ".smoke-particles.particle-count", 1);
+        this.headDistance = config.getDouble(configPath + ".smoke-particles.head-distance", 1.0);
+        this.offsetY = config.getDouble(configPath + ".smoke-particles.offset-y", 0.3);
+        this.speed = config.getDouble(configPath + ".smoke-particles.speed", 0.03);
     }
 
     @Override
     public void enable() {
+        roastMap = new ConcurrentHashMap<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
+        if (roastMap != null) {
+            roastMap.forEach((player, scheduledTask) -> scheduledTask.cancel());
+            roastMap.clear();
+            roastMap = null;
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     private void on(PlayerInteractEvent event) {
         if (event.getAction().isLeftClick()) {
+            // Assume player wants to restock with un-roasted marshmallow
             if (isMarshmallow(event.getItem(), roastedId)) {
                 event.getItem().setCustomModelData(unroastedId);
             }
-            return;
+        } else {
+            // Assume player wants to roast marshmallow
+            if (isMarshmallow(event.getItem(), unroastedId)) {
+                roastMap.computeIfAbsent(event.getPlayer(), player -> player.getScheduler().runAtFixedRate(
+                        plugin,
+                        new MarshmallowRoastTask(this, player, roastDurationTicks),
+                        null,
+                        initialDelayTicks,
+                        periodTicks));
+            }
+        }
+    }
+
+    public static class MarshmallowRoastTask implements Consumer<ScheduledTask> {
+
+        private final MarshmallowRoasting module;
+        private final Player player;
+        private long ticksLeft;
+
+        public MarshmallowRoastTask(MarshmallowRoasting module, Player player, long ticksLeft) {
+            this.module = module;
+            this.player = player;
+            this.ticksLeft = ticksLeft;
         }
 
-        if (!isMarshmallow(event.getItem(), unroastedId)) return;
+        @Override
+        public void accept(ScheduledTask scheduledTask) {
+            if (!module.isNearFire(player.getLocation())) {
+                scheduledTask.cancel();
+                module.roastMap.remove(player);
+                return;
+            }
 
-        roastMap.computeIfAbsent(event.getPlayer(), player ->
-                player.getScheduler().runDelayed(plugin, roastTask -> {
-                    ItemStack mainHand = player.getInventory().getItemInMainHand();
-                    if (isMarshmallow(mainHand, unroastedId) && isNearFire(player.getLocation())) {
-                        mainHand.setCustomModelData(roastedId);
-                    }
-                    roastMap.remove(player);
-                }, null, roastTimeTicks));
+            if (ticksLeft <= 0) {
+                scheduledTask.cancel();
+
+                ItemStack heldItem = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
+                if (module.isMarshmallow(heldItem, module.unroastedId)) {
+                    heldItem.setCustomModelData(module.roastedId);
+                }
+
+                if (module.smokeOnFinish) {
+                    module.spawnSmoke(player);
+                }
+
+                module.roastMap.remove(player);
+                return;
+            }
+
+            ticksLeft = ticksLeft - module.periodTicks;
+            if (module.smokeWhileRoast) {
+                module.spawnSmoke(player);
+            }
+        }
+    }
+
+    private void spawnSmoke(Player player) {
+        Location eyeLocation = player.getEyeLocation().clone();
+        player.getWorld().spawnParticle(
+                particleType,
+                eyeLocation
+                        .add(eyeLocation.getDirection().multiply(headDistance))
+                        .add(0, offsetY, 0),
+                particleCount,
+                0,
+                0,
+                0,
+                speed);
     }
 
     private boolean isMarshmallow(ItemStack itemStack, int roasted) {
