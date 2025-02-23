@@ -33,14 +33,14 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(AsyncChatEvent event) {
-        Player sender = event.getPlayer();
-        Iterator<Audience> iterator = event.viewers().iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next() instanceof Player receiver && !receiver.hasPermission(PluginPermission.BYPASS_CHAT_PROXIMITY.get())) {
-                // Check if worlds are the same so distanceSquared doesn't throw an IllegalArgumentException
-                if (!receiver.getWorld().getUID().equals(sender.getWorld().getUID())
-                        || receiver.getLocation().distanceSquared(sender.getLocation()) > maxDistanceSquared) {
-                    iterator.remove(); // Remove chat receiver if they are out of reach
+        Iterator<Audience> audienceIterator = event.viewers().iterator();
+        while (audienceIterator.hasNext()) {
+            if (audienceIterator.next() instanceof Player messageReceiver
+                    && !messageReceiver.hasPermission(PluginPermission.BYPASS_CHAT_PROXIMITY.get())) {
+                // Check if worlds are the same so distanceSquared never throws an IllegalArgumentException
+                if (!messageReceiver.getWorld().getUID().equals(event.getPlayer().getWorld().getUID())
+                        || messageReceiver.getLocation().distanceSquared(event.getPlayer().getLocation()) > maxDistanceSquared) {
+                    audienceIterator.remove(); // Remove chat receiver if they are out of reach
                 }
             }
         }

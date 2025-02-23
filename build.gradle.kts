@@ -32,11 +32,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.purpurmc.purpur:purpur-api:1.21.3-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur:purpur-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("com.github.retrooper:packetevents-spigot:2.7.0")
     compileOnly("org.apache.logging.log4j:log4j-core:2.24.3")
 
     implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-rc.3")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation("space.arim.morepaperlib:morepaperlib:0.4.3")
     implementation("org.reflections:reflections:0.10.2")
 }
@@ -75,6 +76,8 @@ tasks {
 
     shadowJar {
         archiveFileName.set("RoleplayExtras-${version}.jar")
+
+        relocate("com.github.benmanes.caffeine", "ron.thewizard.roleplayextras.libs.caffeine")
         relocate("io.github.thatsmusic99.configurationmaster", "ron.thewizard.roleplayextras.libs.configmaster")
         relocate("space.arim.morepaperlib", "ron.thewizard.roleplayextras.libs.morepaperlib")
         relocate("org.reflections", "ron.thewizard.roleplayextras.libs.reflections")

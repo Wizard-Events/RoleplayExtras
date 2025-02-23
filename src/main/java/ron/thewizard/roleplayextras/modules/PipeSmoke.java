@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -55,7 +56,7 @@ public class PipeSmoke extends RoleplayExtrasModule implements Listener {
         HandlerList.unregisterAll(this);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     private void on(PlayerInteractEvent event) {
         if (event.getAction().isLeftClick() || event.getMaterial() != pipeMaterial) return;
 
