@@ -1,5 +1,6 @@
 package ron.thewizard.roleplayextras.modules;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -50,6 +51,7 @@ public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener
         if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
         final Block block = event.getClickedBlock();
         if (block.getType() != Material.BEE_NEST) return;
+        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
 
         List<Location> spawnLocations = new ArrayList<>();
 
