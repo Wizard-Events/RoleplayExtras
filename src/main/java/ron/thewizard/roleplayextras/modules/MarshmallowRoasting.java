@@ -33,6 +33,10 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
         super("gameplay.marshmallow-roasting", false, """
                 Right-clicking with the configured item will place smoke particles in front
                 of the players face.""");
+        this.radius = config.getInt(configPath + ".near-fire-search-radius", 3, """
+                Max distance in blocks a player can be away from a fire for marshmallow
+                roasting to work""");
+
         this.roastDurationTicks = config.getLong(configPath + ".marshmallow.roast-time-ticks", 100L);
         Material defaultMarshmallow = Material.SHIELD;
         Material configuredMallow;
@@ -44,7 +48,6 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
         this.marshmallowMaterial = configuredMallow;
         this.unroastedId = config.getInt(configPath + ".marshmallow.unroasted-model", 9);
         this.roastedId = config.getInt(configPath + ".marshmallow.roasted-model", 10);
-        this.radius = config.getInt(configPath + ".near-fire-search-radius", 3);
 
         this.smokeWhileRoast = config.getBoolean(configPath + ".smoke-particles.while-roasting", true);
         this.smokeOnFinish = config.getBoolean(configPath + ".smoke-particles.when-finished-roasting", true);
