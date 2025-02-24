@@ -27,11 +27,11 @@ public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener
     public DontPokeTheBeehive() {
         super("gameplay.bees-aggressive-when-poking-hive", false, """
                 Poking beehive by left clicking it spawns angry bees.""");
-        this.beeCount = config.getInt(configPath + ".bee-count", 30, """
-                Amount of bees to spawn per poke (left-click)""");
+        this.beeCount = config.getInt(configPath + ".bee-count", 20, """
+                Amount of bees to spawn per poke""");
         this.randomTargetRange = config.getDouble(configPath + ".target-acquire-radius", 16, """
-                The radius in blocks around the player that clicked
-                the beehive to randomly choose additional targets from""");
+                The radius in blocks around the beehive to
+                randomly choose targets from""");
         this.anger = config.getInt(configPath + ".anger-ticks", 6000, """
                 Time in ticks bees will stay angry and keep attacking""");
     }
@@ -49,35 +49,40 @@ public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     private void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
-        final Block block = event.getClickedBlock();
-        if (block.getType() != Material.BEE_NEST) return;
+        final Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null || clickedBlock.getType() != Material.BEE_NEST) return;
         if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
 
         List<Location> spawnLocations = new ArrayList<>();
-
         for (BlockFace blockFace : BlockFace.values()) {
-            Block surround = block.getRelative(blockFace);
-            if (surround.isEmpty()) {
-                spawnLocations.add(surround.getLocation().toCenterLocation());
+            Block surroundingBlock = clickedBlock.getRelative(blockFace);
+            if (surroundingBlock.isEmpty()) {
+                spawnLocations.add(surroundingBlock.getLocation().toCenterLocation());
             }
         }
-
         if (spawnLocations.isEmpty()) {
-            spawnLocations.add(block.getLocation());
+            spawnLocations.add(clickedBlock.getLocation());
         }
 
-        List<Player> playerTargets = new ArrayList<>();
-        playerTargets.add(event.getPlayer());
-        playerTargets.addAll(event.getPlayer().getLocation().getNearbyPlayers(randomTargetRange));
+        List<Player> nearbyPlayers = new ArrayList<>(clickedBlock.getLocation().getNearbyPlayers(randomTargetRange));
+        if (nearbyPlayers.isEmpty()) {
+            nearbyPlayers.add(event.getPlayer());
+        }
 
         for (int i = 0; i < beeCount; i++) {
-            event.getPlayer().getWorld()
-                    .spawn(CollectionUtil.getRandomElement(spawnLocations), Bee.class, CreatureSpawnEvent.SpawnReason.BEEHIVE, bee -> {
-                        bee.setHive(block.getLocation());
-                        bee.setTarget(CollectionUtil.getRandomElement(playerTargets));
-                        bee.setAggressive(true);
-                        bee.setAnger(anger);
+            event.getPlayer().getWorld().spawn(
+                    CollectionUtil.getRandomElement(spawnLocations),
+                    Bee.class,
+                    CreatureSpawnEvent.SpawnReason.BEEHIVE,
+                    spawningBee -> {
+                        spawningBee.setHive(clickedBlock.getLocation());
+                        spawningBee.setTarget(CollectionUtil.getRandomElement(nearbyPlayers));
+                        spawningBee.setAggressive(true);
+                        spawningBee.setAnger(anger);
                     });
         }
+
+        spawnLocations.clear();
+        nearbyPlayers.clear();
     }
 }
