@@ -25,10 +25,6 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/") {
         name = "sonatype"
     }
-
-    maven("https://mvn-repo.arim.space/lesser-gpl3/") {
-        name = "arim-mvn-lgpl3"
-    }
 }
 
 dependencies {
