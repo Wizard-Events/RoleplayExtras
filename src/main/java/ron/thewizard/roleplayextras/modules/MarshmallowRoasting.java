@@ -27,7 +27,7 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
     private final int unroastedId, roastedId, radius, particleCount;
     private final boolean smokeWhileRoast, smokeOnFinish;
 
-    private Map<Player, ScheduledTask> roastMap = new ConcurrentHashMap<>();
+    private Map<Player, ScheduledTask> roastMap;
 
     public MarshmallowRoasting() {
         super("gameplay.marshmallow-roasting", false, """
