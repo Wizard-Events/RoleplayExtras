@@ -85,14 +85,14 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
      * physics engine if an update is triggered at a later point. If this occurs, the resulting
      * behavior is undefined."
      * <p>
-     * HOWEVER, not only does it work for us, its also completely safe since we are not creating entire chunks out of vines
+     * HOWEVER, not only does it work for us, its also completely safe since we are not creating large vine structures
      * and only placing some here and there.
      */
-    private static void placeBlockIgnoringVanillaRestrictions(Material material, Block block) {
+    private void placeBlockIgnoringVanillaRestrictions(Material material, Block block) {
         try {
             block.setType(material, true); // Apply physics so blockStates can change naturally (ex. visually merge)
         } catch (Throwable t) {
-            RoleplayExtras.logger().error("<gameplay.vines-are-ropes> Can't place block with material {}!", material, t);
+            error("Error artificially placing block of type: " + material + "! - " + t.getMessage());
         }
     }
 
@@ -174,18 +174,20 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         plugin.getServer().getRegionScheduler().runAtFixedRate(
                 plugin,
                 startBlock.getLocation(),
-                new UnwindRopeTask(startBlock, minLength, maxLength),
+                new UnwindRopeTask(this, startBlock, minLength, maxLength),
                 1L,
                 tickRate);
     }
 
-    private static class UnwindRopeTask implements Consumer<ScheduledTask> {
+    private static final class UnwindRopeTask implements Consumer<ScheduledTask> {
 
+        private final VinesAreRopes module;
         private final Block startBlock;
         private final int maxLength;
         private int currentLength;
 
-        private UnwindRopeTask(Block startBlock, int min, int max) {
+        private UnwindRopeTask(VinesAreRopes module, Block startBlock, int min, int max) {
+            this.module = module;
             this.startBlock = startBlock;
             this.maxLength = min == max ? max : RoleplayExtras.getRandom().nextInt(min, max);
             this.currentLength = 1;
@@ -200,12 +202,12 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
 
             Block relative = startBlock.getRelative(BlockFace.DOWN, currentLength);
 
-            if (!relative.getType().isAir()) {
+            if (!relative.isEmpty()) {
                 scheduledTask.cancel();
                 return;
             }
 
-            VinesAreRopes.placeBlockIgnoringVanillaRestrictions(startBlock.getType(), relative);
+            module.placeBlockIgnoringVanillaRestrictions(startBlock.getType(), relative);
             currentLength++;
         }
     }
