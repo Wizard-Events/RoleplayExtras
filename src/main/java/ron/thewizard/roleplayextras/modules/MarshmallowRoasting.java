@@ -27,7 +27,7 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
     private final int unroastedId, roastedId, radius, particleCount;
     private final boolean smokeWhileRoast, smokeOnFinish;
 
-    private Map<Player, ScheduledTask> roastMap;
+    private Map<Player, ScheduledTask> playersRoastingMarshmallows;
 
     public MarshmallowRoasting() {
         super("gameplay.marshmallow-roasting", false, """
@@ -71,17 +71,17 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
 
     @Override
     public void enable() {
-        roastMap = new ConcurrentHashMap<>();
+        playersRoastingMarshmallows = new ConcurrentHashMap<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
-        if (roastMap != null) {
-            roastMap.forEach((player, scheduledTask) -> scheduledTask.cancel());
-            roastMap.clear();
-            roastMap = null;
+        if (playersRoastingMarshmallows != null) {
+            playersRoastingMarshmallows.forEach((player, scheduledTask) -> scheduledTask.cancel());
+            playersRoastingMarshmallows.clear();
+            playersRoastingMarshmallows = null;
         }
     }
 
@@ -95,7 +95,7 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
         } else {
             // Assume player wants to roast marshmallow
             if (isMarshmallow(event.getItem(), unroastedId)) {
-                roastMap.computeIfAbsent(event.getPlayer(), player -> player.getScheduler().runAtFixedRate(
+                playersRoastingMarshmallows.computeIfAbsent(event.getPlayer(), player -> player.getScheduler().runAtFixedRate(
                         plugin,
                         new MarshmallowRoastTask(this, player, roastDurationTicks),
                         null,
@@ -121,7 +121,7 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
         public void accept(ScheduledTask scheduledTask) {
             if (!module.isNearFire(player.getLocation())) {
                 scheduledTask.cancel();
-                module.roastMap.remove(player);
+                module.playersRoastingMarshmallows.remove(player);
                 return;
             }
 
@@ -137,7 +137,7 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
                     module.spawnSmoke(player);
                 }
 
-                module.roastMap.remove(player);
+                module.playersRoastingMarshmallows.remove(player);
                 return;
             }
 
