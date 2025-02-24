@@ -105,13 +105,13 @@ public class MarshmallowRoasting extends RoleplayExtrasModule implements Listene
         }
     }
 
-    public static class MarshmallowRoastTask implements Consumer<ScheduledTask> {
+    private static final class MarshmallowRoastTask implements Consumer<ScheduledTask> {
 
         private final MarshmallowRoasting module;
         private final Player player;
         private long ticksLeft;
 
-        public MarshmallowRoastTask(MarshmallowRoasting module, Player player, long ticksLeft) {
+        private MarshmallowRoastTask(MarshmallowRoasting module, Player player, long ticksLeft) {
             this.module = module;
             this.player = player;
             this.ticksLeft = ticksLeft;
