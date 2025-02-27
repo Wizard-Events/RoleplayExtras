@@ -17,11 +17,14 @@ public class EntityUtil {
      * Adds a natural-ish random offset using a customizable intensity input (Vanilla intensity is 0.5F).
      * The rest of this method is explained by {@link org.bukkit.World#dropItem(Location, ItemStack, Consumer)}
      */
-    public static Item dropItemNaturally(Location location, float disperseIntensity, ItemStack itemStack, Consumer<? super Item> function) {
+    public static Item dropItemNaturally(
+            Location location,
+            float multiplier_x, float multiplier_y, float multiplier_z,
+            ItemStack itemStack, Consumer<? super Item> function) {
         return location.getWorld().dropItem(location.clone().add(
-                (RoleplayExtras.getRandom().nextFloat() * disperseIntensity) + 0.25D,
-                (RoleplayExtras.getRandom().nextFloat() * disperseIntensity) + 0.25D,
-                (RoleplayExtras.getRandom().nextFloat() * disperseIntensity) + 0.25D), itemStack, function);
+                (RoleplayExtras.getRandom().nextFloat() * multiplier_x),
+                (RoleplayExtras.getRandom().nextFloat() * multiplier_y),
+                (RoleplayExtras.getRandom().nextFloat() * multiplier_z)), itemStack, function);
     }
 
     public static void cloneItemProperties(Item from, Item to) {
