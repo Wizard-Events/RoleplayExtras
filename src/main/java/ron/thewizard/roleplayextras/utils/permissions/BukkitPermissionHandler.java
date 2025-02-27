@@ -18,33 +18,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class BukkitPermissionHandler implements PermissionHandler, Listener {
 
-    private final Map<Permissible, Cache<String, TriState>> permissionCacheMap;
-    private final Duration permissionCacheDuration;
+    private final Map<Permissible, Cache<String, TriState>> permissibleStateCacheMap;
 
     BukkitPermissionHandler(JavaPlugin plugin) {
-        permissionCacheDuration = Duration.ofSeconds(5);
-        permissionCacheMap = new ConcurrentHashMap<>(Math.min(8, plugin.getServer().getOnlinePlayers().size()));
+        permissibleStateCacheMap = new ConcurrentHashMap<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
-        for (Map.Entry<Permissible, Cache<String, TriState>> entry : permissionCacheMap.entrySet()) {
-            flushCache(entry.getKey());
-        }
+        permissibleStateCacheMap.keySet().forEach(this::flushCache);
     }
 
     @Override
     public TriState permissionValue(Permissible permissible, String permission) {
-        Cache<String, TriState> permCache = permissionCacheMap.computeIfAbsent(permissible, sender ->
-                Caffeine.newBuilder().expireAfterWrite(permissionCacheDuration).build());
-        TriState value = permCache.getIfPresent(permission);
-        if (value == null) {
-            value = permissible.isPermissionSet(permission) ? TriState.of(permissible.hasPermission(permission)) : TriState.UNDEFINED;
-            permCache.put(permission, value);
-        }
-        return value;
+        return getPermissionStateCache(permissible).get(permission, p ->
+                permissible.isPermissionSet(p) ? TriState.of(permissible.hasPermission(p)) : TriState.UNDEFINED);
     }
 
     @Override
@@ -60,8 +50,14 @@ public final class BukkitPermissionHandler implements PermissionHandler, Listene
                 } else {
                     permissible.addAttachment(attachmentInfo.getAttachment().getPlugin(), permission, state.toBoolean());
                 }
+                getPermissionStateCache(permissible).put(permission, state);
             }
         }
+    }
+
+    private Cache<String, TriState> getPermissionStateCache(Permissible permissible) {
+        return permissibleStateCacheMap.computeIfAbsent(permissible, p ->
+                Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(5)).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -75,10 +71,10 @@ public final class BukkitPermissionHandler implements PermissionHandler, Listene
     }
 
     private void flushCache(Permissible permissible) {
-        if (permissionCacheMap.containsKey(permissible)) {
-            permissionCacheMap.get(permissible).invalidateAll();
-            permissionCacheMap.get(permissible).cleanUp();
-            permissionCacheMap.remove(permissible);
+        if (permissibleStateCacheMap.containsKey(permissible)) {
+            permissibleStateCacheMap.get(permissible).invalidateAll();
+            permissibleStateCacheMap.get(permissible).cleanUp();
+            permissibleStateCacheMap.remove(permissible);
         }
     }
 }

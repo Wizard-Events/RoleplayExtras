@@ -1,10 +1,14 @@
 package ron.thewizard.roleplayextras.utils;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class EntityUtil {
@@ -44,5 +48,11 @@ public class EntityUtil {
         to.setSilent(from.isSilent());
         to.setPersistent(from.isPersistent());
         to.setPortalCooldown(from.getPortalCooldown());
+    }
+
+    private static final Lazy<Map<UUID, Boolean>> IS_NPC_CACHE = Lazy.of(ConcurrentHashMap::new);
+    public static boolean isNPC(Entity entity) {
+        if (entity == null) return false;
+        return IS_NPC_CACHE.get().computeIfAbsent(entity.getUniqueId(), uuid -> entity.hasMetadata("NPC"));
     }
 }
