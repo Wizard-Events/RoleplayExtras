@@ -37,7 +37,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         this.requireSolidBlock = config.getBoolean(configPath + ".require-solid-block", true, """
                 Whether the block the rope is placed against has to be solid.""");
         this.consumeItem = config.getBoolean(configPath + ".consume-item", true, """
-                If set to true, players """);
+                If set to true, rope items in the player's hand will be consumed.""");
         this.vines = config.getList(configPath + ".affected-vines", List.of("WEEPING_VINES"))
                 .stream()
                 .map(configuredMaterial -> {
@@ -78,7 +78,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
     /**
      * Note: The API actually specifically advises AGAINST using this method for placing blocks where they shouldn't belong.
      * <p>
-     * Quote:
+     * Quote: <p>
      * "This method should NOT be used to "hack" physics by placing blocks in impossible locations.
      * Such blocks are liable to be removed on various events such as world upgrades.
      * Furthermore setting large amounts of such blocks in close proximity may overload the server
@@ -92,7 +92,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         try {
             block.setType(material, true); // Apply physics so blockStates can change naturally (ex. visually merge)
         } catch (Throwable t) {
-            error("Error artificially placing block of type: " + material + "! - " + t.getMessage());
+            logger().error("Error artificially placing block of type {}! - {}", material, t.getMessage());
         }
     }
 

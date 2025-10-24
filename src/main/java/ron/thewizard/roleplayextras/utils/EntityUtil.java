@@ -6,15 +6,15 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class EntityUtil {
 
     /**
-     * Adds a natural-ish random offset using a customizable intensity input (Vanilla intensity is 0.5F).
+     * Adds a natural-ish random offset with customizable spread multipliers (Vanilla spread is 0.5F).
      * The rest of this method is explained by {@link org.bukkit.World#dropItem(Location, ItemStack, Consumer)}
      */
     public static Item dropItemNaturally(
@@ -53,7 +53,7 @@ public class EntityUtil {
         to.setPortalCooldown(from.getPortalCooldown());
     }
 
-    private static final Lazy<Map<UUID, Boolean>> IS_NPC_CACHE = Lazy.of(ConcurrentHashMap::new);
+    private static final Lazy<Map<UUID, Boolean>> IS_NPC_CACHE = Lazy.of(HashMap::new);
     public static boolean isNPC(Entity entity) {
         if (entity == null) return false;
         return IS_NPC_CACHE.get().computeIfAbsent(entity.getUniqueId(), uuid -> entity.hasMetadata("NPC"));

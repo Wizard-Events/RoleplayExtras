@@ -15,9 +15,11 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import ron.thewizard.roleplayextras.utils.CollectionUtil;
+import ron.thewizard.roleplayextras.utils.LocationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener {
 
@@ -49,40 +51,56 @@ public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     private void on(PlayerInteractEvent event) {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
-        final Block clickedBlock = event.getClickedBlock();
-        if (clickedBlock == null || clickedBlock.getType() != Material.BEE_NEST) return;
         if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
 
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null || clickedBlock.getType() != Material.BEE_NEST) return;
+
         List<Location> spawnLocations = new ArrayList<>();
+
         for (BlockFace blockFace : BlockFace.values()) {
             Block surroundingBlock = clickedBlock.getRelative(blockFace);
             if (surroundingBlock.isEmpty()) {
                 spawnLocations.add(surroundingBlock.getLocation().toCenterLocation());
             }
         }
+
         if (spawnLocations.isEmpty()) {
             spawnLocations.add(clickedBlock.getLocation());
+            logger().debug("Going to spawn bees inside beenest because no empty surrounding block at {}",
+                    LocationUtil.toString(clickedBlock.getLocation()));
+        } else {
+            logger().debug("Found {} suitable bee spawn location(s) for beenest at {}",
+                    spawnLocations.size(), LocationUtil.toString(clickedBlock.getLocation()));
         }
 
         List<Player> nearbyPlayers = new ArrayList<>(clickedBlock.getLocation().getNearbyPlayers(randomTargetRange));
+
         if (nearbyPlayers.isEmpty()) {
             nearbyPlayers.add(event.getPlayer());
+            logger().debug("No players near beenest at {}. Adding player {} from {}",
+                    clickedBlock.getLocation(), event.getPlayer().getName(), event.getEventName());
+        } else {
+            logger().debug("Found {} player target(s) near beenest at {}. (players={})",
+                    nearbyPlayers.size(), clickedBlock.getLocation(),
+                    nearbyPlayers.stream().map(Player::getName).collect(Collectors.joining(", ")));
         }
 
         for (int i = 0; i < beeCount; i++) {
+            Location spawnLocation = CollectionUtil.getRandomElement(spawnLocations);
+            Player targetPlayer = CollectionUtil.getRandomElement(nearbyPlayers);
+            logger().info("Spawning angy bee at {} with target player {}",
+                    LocationUtil.toString(spawnLocation), targetPlayer.getName());
             event.getPlayer().getWorld().spawn(
-                    CollectionUtil.getRandomElement(spawnLocations),
+                    spawnLocation,
                     Bee.class,
                     CreatureSpawnEvent.SpawnReason.BEEHIVE,
                     spawningBee -> {
                         spawningBee.setHive(clickedBlock.getLocation());
-                        spawningBee.setTarget(CollectionUtil.getRandomElement(nearbyPlayers));
+                        spawningBee.setTarget(targetPlayer);
                         spawningBee.setAggressive(true);
                         spawningBee.setAnger(anger);
                     });
         }
-
-        spawnLocations.clear();
-        nearbyPlayers.clear();
     }
 }

@@ -1,6 +1,7 @@
 package ron.thewizard.roleplayextras;
 
 import io.github.thatsmusic99.configurationmaster.api.ConfigFile;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.api.Title;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -9,6 +10,7 @@ import ron.thewizard.roleplayextras.utils.KyoriUtil;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 public final class RoleplayConfig {
 
@@ -121,5 +123,19 @@ public final class RoleplayConfig {
 
     public @NotNull List<Component> getMessage(@NotNull String path, @NotNull List<String> def) {
         return this.getList(path, def).stream().map(KyoriUtil::replaceAmpersand).map(MiniMessage.miniMessage()::deserialize).toList();
+    }
+
+    public ConfigSection getConfigSection(String path, Map<String, Object> defaultKeyValue) {
+        configFile.addDefault(path, null);
+        configFile.makeSectionLenient(path);
+        defaultKeyValue.forEach((string, object) -> configFile.addExample(path + "." + string, object));
+        return configFile.getConfigSection(path);
+    }
+
+    public ConfigSection getConfigSection(String path, Map<String, Object> defaultKeyValue, String comment) {
+        configFile.addDefault(path, null, comment);
+        configFile.makeSectionLenient(path);
+        defaultKeyValue.forEach((string, object) -> configFile.addExample(path + "." + string, object));
+        return configFile.getConfigSection(path);
     }
 }

@@ -35,21 +35,21 @@ public class SprintBoost extends RoleplayExtrasModule implements Listener, Packe
 
     public SprintBoost() {
         super("gameplay.sprint-boost", true, """
-                Applies a configurable multiplier to a player's walkspeed,\s
+                Applies a configurable multiplier to a player's walkspeed,
                 if they drop an item or swap offhand while sprinting.""");
         this.startOnSwapOffHand = config.getBoolean(configPath + ".start-button.swap-off-hand", true);
         this.startOnDropItem = config.getBoolean(configPath + ".start-button.drop-item", true);
         this.stopOnSneak = config.getBoolean(configPath + ".stop-button.sneak", true);
         this.speedMultiplier = (float) config.getDouble(configPath + ".speed-multiplier", 1.8, """
-                The multiplier that will be applied to the player's\s
-                walkspeed on activation.\s
+                The multiplier that will be applied to the player's
+                walkspeed on activation.
                 1.8 means a 80% speed increase.""");
         this.durationMillis = config.getLong(configPath + ".duration-millis", 5000, """
-                How long the player will be able to walk fast after triggering\s
+                How long the player will be able to walk fast after triggering
                 the feature.""");
         this.stackDuration = config.getBoolean(configPath + ".stack-duration", true, """
-                If set to true, the duration time will be extended by\s
-                an additional duration-millis if the player is already\s
+                If set to true, the duration time will be extended by
+                an additional duration-millis if the player is already
                 boosted.""");
     }
 

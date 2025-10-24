@@ -32,12 +32,12 @@ public class SingleItemSpawning extends RoleplayExtrasModule implements Listener
         this.disperse_y = (float) config.getDouble(configPath + ".disperse-intensity.y", 0.2);
         this.disperse_z = (float) config.getDouble(configPath + ".disperse-intensity.z", 1.2);
         this.minPickupDelayTicks = config.getInt(configPath + ".min-pickup-delay-ticks", 15, """
-                Helps prevent the scenario where players try to throw\s
-                a stack of items and immediately pick them back up on\s
-                the next tick. Therefore making it impossible to share\s
-                an item.\s
-                20 ticks = 1 second. 15 ticks should be just enough to\s
-                be effective while not being intrusive.\s
+                Helps prevent the scenario where players try to throw
+                a stack of items and immediately pick them back up on
+                the next tick. Therefore making it impossible to share
+                an item.
+                20 ticks = 1 second. 15 ticks should be just enough to
+                be effective while not being intrusive.
                 Vanilla is at 10 ticks.""");
     }
 
@@ -87,7 +87,7 @@ public class SingleItemSpawning extends RoleplayExtrasModule implements Listener
             return false;
         }
 
-        /* ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+        /*  ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
          *  ⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
          *  ⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
          *  ⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠆⠜⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
@@ -103,7 +103,8 @@ public class SingleItemSpawning extends RoleplayExtrasModule implements Listener
          *  ⣿⣿⣿⡿⠟⠋⠀⠀⠀⠀⠹⣿⣧⣀⠀⠀⠀⠀⡀⣴⠁⢘⡙⢿⣿⣿⣿⣿⣿⣿⣿⣿
          *  ⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⠗⠂⠄⠀⣴⡟⠀⠀⡃⠀⠉⠉⠟⡿⣿⣿⣿⣿
          *  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢷⠾⠛⠂⢹⠀⠀⠀⢡⠀⠀⠀⠀⠀⠙⠛⠿⢿
-         *  I am the one who drops.*/
+         *           I am the one who drops.
+         * */
 
         ItemStack singleItemStack = spawningItem.getItemStack().asOne();
 

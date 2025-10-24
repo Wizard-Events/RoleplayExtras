@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.util.NumberConversions;
+import ron.thewizard.roleplayextras.utils.MathUtil;
 import ron.thewizard.roleplayextras.utils.permissions.PluginPermission;
 
 import java.util.Iterator;
@@ -18,7 +18,7 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
 
     public ChatProximity() {
         super("gameplay.text-chat-proximity", true);
-        this.maxDistanceSquared = NumberConversions.square(config.getDouble(configPath + ".max-block-distance", 13));
+        this.maxDistanceSquared = MathUtil.square(config.getDouble(configPath + ".max-block-distance", 13));
     }
 
     @Override
@@ -36,6 +36,7 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
         if (PluginPermission.BYPASS_CHAT_PROXIMITY_SEND.test(event.getPlayer())) return;
 
         Iterator<Audience> audienceIterator = event.viewers().iterator();
+
         while (audienceIterator.hasNext()) {
             if (audienceIterator.next() instanceof Player messageReceiver
                     && !PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.test(messageReceiver)) {

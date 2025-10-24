@@ -39,6 +39,7 @@ public class JoinMessage extends RoleplayExtrasModule implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void on(PlayerJoinEvent event) {
+        logger().debug("Sending join message to player {}", event.getPlayer().getName());
         for (Component component : join_message) {
             event.getPlayer().sendMessage(component);
         }
