@@ -3,7 +3,6 @@ package ron.thewizard.roleplayextras.modules;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Chunk;
 import org.bukkit.World;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -67,7 +66,7 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
                     plugin.getServer().getRegionScheduler().run(plugin, chunk.getWorld(), chunk.getX(), chunk.getZ(), getEntities -> {
                         for (Entity entity : chunk.getEntities()) {
                             if (EntityUtil.BOATS.get().contains(entity.getType())) {
-                                attachWatchdogTask((Boat) entity);
+                                attachWatchdogTask(entity);
                             }
                         }
                     });
@@ -85,7 +84,7 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(EntitySpawnEvent event) {
         if (EntityUtil.BOATS.get().contains(event.getEntityType())) {
-            attachWatchdogTask((Boat) event.getEntity());
+            attachWatchdogTask(event.getEntity());
         }
     }
 
@@ -93,7 +92,7 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
     private void on(EntitiesLoadEvent event) {
         for (Entity entity : event.getEntities()) {
             if (EntityUtil.BOATS.get().contains(entity.getType())) {
-                attachWatchdogTask((Boat) entity);
+                attachWatchdogTask(entity);
             }
         }
     }
@@ -123,7 +122,7 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
         return false;
     }
 
-    private void attachWatchdogTask(Boat boat) {
+    private void attachWatchdogTask(Entity boat) {
         watchdogTasks.computeIfAbsent(boat.getUniqueId(), uuid -> boat.getScheduler().runAtFixedRate(plugin,
                 new BoatWatchdog(this, boat), null, checkPeriodTicks, checkPeriodTicks));
     }
@@ -137,11 +136,11 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
     private static final class BoatWatchdog implements Consumer<ScheduledTask> {
 
         private final BoatDespawnTimer module;
-        private final Boat boat;
+        private final Entity boat;
 
         private long lifeTimeTicksLeft;
 
-        public BoatWatchdog(BoatDespawnTimer module, Boat boat) {
+        public BoatWatchdog(BoatDespawnTimer module, Entity boat) {
             this.module = module;
             this.boat = boat;
             this.lifeTimeTicksLeft = module.removalCountdownTicks;
