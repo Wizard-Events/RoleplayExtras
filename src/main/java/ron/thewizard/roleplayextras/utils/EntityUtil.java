@@ -2,14 +2,18 @@ package ron.thewizard.roleplayextras.utils;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class EntityUtil {
 
@@ -58,4 +62,8 @@ public class EntityUtil {
         if (entity == null) return false;
         return IS_NPC_CACHE.get().computeIfAbsent(entity.getUniqueId(), uuid -> entity.hasMetadata("NPC"));
     }
+
+    public static final Lazy<Set<EntityType>> BOATS = Lazy.of(() -> Arrays.stream(EntityType.values())
+            .filter(entityType -> entityType.name().contains("BOAT"))
+            .collect(Collectors.toUnmodifiableSet()));
 }

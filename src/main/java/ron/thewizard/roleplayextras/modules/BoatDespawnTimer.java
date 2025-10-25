@@ -10,7 +10,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 import ron.thewizard.roleplayextras.utils.CommonUtil;
+import ron.thewizard.roleplayextras.utils.EntityUtil;
 import ron.thewizard.roleplayextras.utils.LocationUtil;
 
 import java.time.Duration;
@@ -75,7 +77,7 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
                     continue;
                 }
 
-                if (containsDelayingPassenger(boat.getPassengers())) {
+                if (hasDelayingPassenger(boat.getPassengers())) {
                     logger().info("Resetting despawn countdown for {} at {} because of delaying passenger",
                             boat.getType(), LocationUtil.toString(boat.getLocation()));
                     despawnCountdowns.remove(boat.getUniqueId());
@@ -101,13 +103,29 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void on(EntitiesUnloadEvent event) {
+        for (Entity entity : event.getEntities()) {
+            if (!EntityUtil.BOATS.get().contains(entity.getType())) continue;
+            if (entity.customName() != null || hasDelayingPassenger(entity.getPassengers())) continue;
+
+            logger().info("Not saving {} in {} at {} (lifetime: {} ticks or {})",
+                    entity.getType(),
+                    event.getEventName(),
+                    LocationUtil.toString(entity.getLocation()), entity.getTicksLived(),
+                    CommonUtil.formatDuration(Duration.ofMillis(entity.getTicksLived() * 50L)));
+
+            entity.remove();
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     private void on(EntityRemoveFromWorldEvent event) {
         despawnCountdowns.remove(event.getEntity().getUniqueId()); // Avoid possible memory leak
     }
 
-    private boolean containsDelayingPassenger(List<Entity> passengers) {
-        for (Entity passenger : passengers) {
+    private boolean hasDelayingPassenger(List<Entity> passengerList) {
+        for (Entity passenger : passengerList) {
             if (passengerTypes.contains(passenger.getType())) {
                 return true;
             }
