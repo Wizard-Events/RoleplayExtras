@@ -95,8 +95,8 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
                 ticksLeft = ticksLeft - checkPeriodTicks;
                 despawnCountdowns.put(boat.getUniqueId(), ticksLeft);
                 logger.info("{} at {} will be removed in {} ticks or {}",
-                        boat.getType(), boat.getLocation(), ticksLeft,
-                        CommonUtil.formatDuration(Duration.ofSeconds(ticksLeft * 50L)));
+                        boat.getType(), LocationUtil.toString(boat.getLocation()), ticksLeft,
+                        CommonUtil.formatDuration(Duration.ofMillis(ticksLeft * 50L)));
             }
         }
     }
