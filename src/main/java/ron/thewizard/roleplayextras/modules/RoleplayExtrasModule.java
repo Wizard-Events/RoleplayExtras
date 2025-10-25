@@ -55,7 +55,8 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
         try {
             loggingLevel = Level.parse(configuredLoggingLevel);
         } catch (IllegalArgumentException e) {
-            notRecognized(Level.class, configuredLoggingLevel);
+            logger().warning(() -> "Unable to parse logging level from string '" + configuredLoggingLevel +
+                    "', falling back to " + Level.INFO.getName());
         }
         this.logger = getModuleLogger(configPath, loggingLevel);
 
