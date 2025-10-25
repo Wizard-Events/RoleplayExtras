@@ -10,6 +10,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import ron.thewizard.roleplayextras.utils.CommonUtil;
@@ -84,6 +85,14 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(EntitySpawnEvent event) {
         if (EntityUtil.BOATS.get().contains(event.getEntityType())) {
+            attachWatchdogTask(event.getEntity());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    private void on(EntityTeleportEvent event) {
+        if (EntityUtil.BOATS.get().contains(event.getEntityType())
+                && event.getTo() != null && worlds.contains(event.getTo().getWorld().getName())) {
             attachWatchdogTask(event.getEntity());
         }
     }
