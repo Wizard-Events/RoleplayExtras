@@ -50,8 +50,7 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
 
         Level loggingLevel = Level.INFO;
         String configuredLoggingLevel = config.getString(configPath + ".log-level", loggingLevel.getName(), """
-                Configurable levels are:
-                OFF - SEVERE (highest value) - WARNING - INFO - CONFIG - FINE - FINER - FINEST (lowest value) - ALL""");
+                Levels: OFF - SEVERE (highest value) - WARNING - INFO - CONFIG - FINE - FINER - FINEST (lowest value) - ALL""");
         try {
             loggingLevel = Level.parse(configuredLoggingLevel);
         } catch (IllegalArgumentException e) {
