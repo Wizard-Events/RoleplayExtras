@@ -132,8 +132,13 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
     }
 
     private void attachWatchdogTask(Entity boat) {
-        watchdogTasks.computeIfAbsent(boat.getUniqueId(), uuid -> boat.getScheduler().runAtFixedRate(plugin,
-                new BoatWatchdog(this, boat), null, checkPeriodTicks, checkPeriodTicks));
+        watchdogTasks.computeIfAbsent(boat.getUniqueId(), uuid -> boat.getScheduler().runAtFixedRate(
+                plugin,
+                new BoatWatchdog(this, boat),
+                () -> watchdogTasks.remove(uuid),
+                checkPeriodTicks,
+                checkPeriodTicks
+        ));
     }
 
     private void cancelWatchdogTask(UUID uuid) {
