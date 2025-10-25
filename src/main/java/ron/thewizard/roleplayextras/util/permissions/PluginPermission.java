@@ -1,4 +1,4 @@
-package ron.thewizard.roleplayextras.utils.permissions;
+package ron.thewizard.roleplayextras.util.permissions;
 
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
@@ -26,7 +26,11 @@ public enum PluginPermission {
         return permission;
     }
 
-    public boolean test(Permissible permissible) {
+    public String node() {
+        return permission.getName();
+    }
+
+    public boolean check(Permissible permissible) {
         return RoleplayExtras.permissions().permissionValue(permissible, permission.getName()).toBoolean();
     }
 

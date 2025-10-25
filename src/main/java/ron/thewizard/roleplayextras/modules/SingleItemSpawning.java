@@ -9,7 +9,7 @@ import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
-import ron.thewizard.roleplayextras.utils.EntityUtil;
+import ron.thewizard.roleplayextras.util.EntityUtil;
 
 public class SingleItemSpawning extends RoleplayExtrasModule implements Listener {
 

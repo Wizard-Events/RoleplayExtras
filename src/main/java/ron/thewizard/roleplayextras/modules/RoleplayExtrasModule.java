@@ -1,23 +1,20 @@
 package ron.thewizard.roleplayextras.modules;
 
 import com.google.common.collect.ImmutableSet;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import ron.thewizard.roleplayextras.RoleplayConfig;
 import ron.thewizard.roleplayextras.RoleplayExtras;
-import ron.thewizard.roleplayextras.utils.Disableable;
-import ron.thewizard.roleplayextras.utils.Enableable;
-import ron.thewizard.roleplayextras.utils.logging.FilteredSLF4JLogger;
-import ron.thewizard.roleplayextras.utils.logging.LogLevel;
+import ron.thewizard.roleplayextras.util.Disableable;
+import ron.thewizard.roleplayextras.util.Enableable;
 
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public abstract class RoleplayExtrasModule implements Enableable, Disableable {
@@ -27,7 +24,7 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
 
     static {
         // Disable reflection logging for this operation because its just confusing and provides no value.
-        Configurator.setLevel(RoleplayExtras.class.getPackage().getName() + ".libs.reflections.Reflections", Level.OFF);
+        Configurator.setLevel(RoleplayExtras.class.getPackage().getName() + ".libs.reflections.Reflections", org.apache.logging.log4j.Level.OFF);
         AVAILABLE_MODULES = new Reflections(RoleplayExtrasModule.class.getPackage().getName())
                 .get(Scanners.SubTypes.of(RoleplayExtrasModule.class).asClass())
                 .stream()
@@ -40,7 +37,7 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
 
     protected final RoleplayExtras plugin = RoleplayExtras.getInstance();
     protected final RoleplayConfig config = RoleplayExtras.config();
-    protected final FilteredSLF4JLogger<ComponentLogger> logger;
+    protected final Logger logger;
     protected final String configPath;
     protected final boolean enabled_in_config;
 
@@ -51,15 +48,16 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
     public RoleplayExtrasModule(String configPath, boolean defEnabled, String comment) {
         this.configPath = configPath;
 
-        LogLevel loggingLevel = LogLevel.WARN;
-        String configuredLoggingLevel = config.getString(configPath + ".log-level", loggingLevel.name(),
-                Arrays.stream(LogLevel.values()).map(Enum::name).collect(Collectors.joining(" ")));
+        Level loggingLevel = Level.INFO;
+        String configuredLoggingLevel = config.getString(configPath + ".log-level", loggingLevel.getName(), """
+                Configurable levels are:
+                OFF - SEVERE (highest value) - WARNING - INFO - CONFIG - FINE - FINER - FINEST (lowest value) - ALL""");
         try {
-            loggingLevel = LogLevel.valueOf(configuredLoggingLevel);
+            loggingLevel = Level.parse(configuredLoggingLevel);
         } catch (IllegalArgumentException e) {
-            notRecognized(LogLevel.class, configuredLoggingLevel);
+            notRecognized(Level.class, configuredLoggingLevel);
         }
-        this.logger = createModuleLogger(configPath, loggingLevel);
+        this.logger = getModuleLogger(configPath, loggingLevel);
 
         if (comment == null || comment.isBlank()) {
             this.enabled_in_config = config.getBoolean(configPath + ".enable", defEnabled);
@@ -72,7 +70,7 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
         return enabled_in_config;
     }
 
-    public FilteredSLF4JLogger<ComponentLogger> logger() {
+    public Logger logger() {
         return logger;
     }
 
@@ -102,15 +100,15 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
         ENABLED_MODULES.forEach(Enableable::enable);
     }
 
-    protected static FilteredSLF4JLogger<ComponentLogger> createModuleLogger(String configPath, LogLevel filterLevel) {
+    protected static Logger getModuleLogger(String configPath, Level level) {
         final String[] splitPath = configPath.split("\\.");
         final String loggingPrefix = splitPath.length < 3 ? configPath : splitPath[splitPath.length - 2] + "." + splitPath[splitPath.length - 1];
-        return new FilteredSLF4JLogger<>(
-                ComponentLogger.logger(RoleplayExtras.getInstance().getLogger().getName() + " # " + loggingPrefix),
-                filterLevel);
+        Logger moduleLogger = Logger.getLogger(RoleplayExtras.getInstance().getLogger().getName() + " # " + loggingPrefix);
+        moduleLogger.setLevel(level);
+        return moduleLogger;
     }
 
     protected void notRecognized(Class<?> clazz, String unrecognized) {
-        logger().warn("Unable to parse {} from string '{}'. Please check your configuration.", clazz.getSimpleName(), unrecognized);
+        logger().warning(() -> "Unable to parse " + clazz.getSimpleName() + " from string '" + unrecognized + "'. Please check your configuration.");
     }
 }

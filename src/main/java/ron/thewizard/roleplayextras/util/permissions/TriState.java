@@ -1,4 +1,4 @@
-package ron.thewizard.roleplayextras.utils.permissions;
+package ron.thewizard.roleplayextras.util.permissions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 

@@ -1,9 +1,9 @@
-package ron.thewizard.roleplayextras.utils.permissions;
+package ron.thewizard.roleplayextras.util.permissions;
 
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.java.JavaPlugin;
-import ron.thewizard.roleplayextras.utils.Disableable;
-import ron.thewizard.roleplayextras.utils.ReflectionUtil;
+import ron.thewizard.roleplayextras.util.Disableable;
+import ron.thewizard.roleplayextras.util.ReflectionUtil;
 
 public interface PermissionHandler extends Disableable {
 

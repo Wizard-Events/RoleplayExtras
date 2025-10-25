@@ -6,7 +6,7 @@ import io.github.thatsmusic99.configurationmaster.api.Title;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
-import ron.thewizard.roleplayextras.utils.KyoriUtil;
+import ron.thewizard.roleplayextras.util.KyoriUtil;
 
 import java.io.File;
 import java.util.List;

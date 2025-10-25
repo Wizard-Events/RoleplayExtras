@@ -1,4 +1,4 @@
-package ron.thewizard.roleplayextras.utils.permissions;
+package ron.thewizard.roleplayextras.util.permissions;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

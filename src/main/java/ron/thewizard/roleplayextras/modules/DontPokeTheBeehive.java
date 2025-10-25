@@ -14,8 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import ron.thewizard.roleplayextras.utils.CollectionUtil;
-import ron.thewizard.roleplayextras.utils.LocationUtil;
+import ron.thewizard.roleplayextras.util.CollectionUtil;
+import ron.thewizard.roleplayextras.util.LocationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,30 +67,30 @@ public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener
 
         if (spawnLocations.isEmpty()) {
             spawnLocations.add(clickedBlock.getLocation());
-            logger().info("Going to spawn bees inside beenest because no empty surrounding block at {}",
+            logger().fine(() -> "Going to spawn bees inside beenest because no empty surrounding block at " +
                     LocationUtil.toString(clickedBlock.getLocation()));
         } else {
-            logger().info("Found {} suitable bee spawn location(s) for beenest at {}",
-                    spawnLocations.size(), LocationUtil.toString(clickedBlock.getLocation()));
+            logger().fine(() -> "Found " + spawnLocations.size() + " suitable bee spawn location(s) for beenest at " +
+                    LocationUtil.toString(clickedBlock.getLocation()));
         }
 
         List<Player> nearbyPlayers = new ArrayList<>(clickedBlock.getLocation().getNearbyPlayers(randomTargetRange));
 
         if (nearbyPlayers.isEmpty()) {
             nearbyPlayers.add(event.getPlayer());
-            logger().info("No players near beenest at {}. Adding player {} from {}",
-                    clickedBlock.getLocation(), event.getPlayer().getName(), event.getEventName());
+            logger().fine(() -> "No players near beenest at " + LocationUtil.toString(clickedBlock.getLocation()) +
+                    ". Adding player " + event.getPlayer().getName() + " from " + event.getEventName());
         } else {
-            logger().info("Found {} player target(s) near beenest at {}. (players={})",
-                    nearbyPlayers.size(), clickedBlock.getLocation(),
-                    nearbyPlayers.stream().map(Player::getName).collect(Collectors.joining(", ")));
+            logger().fine(() -> "Found " + nearbyPlayers.size() + " player target(s) near beenest at " +
+                    LocationUtil.toString(clickedBlock.getLocation()) + ". (players=" +
+                    nearbyPlayers.stream().map(Player::getName).collect(Collectors.joining(" ")) + ")");
         }
 
         for (int i = 0; i < beeCount; i++) {
             Location spawnLocation = CollectionUtil.getRandomElement(spawnLocations);
             Player targetPlayer = CollectionUtil.getRandomElement(nearbyPlayers);
-            logger().info("Spawning angy bee at {} with target player {}",
-                    LocationUtil.toString(spawnLocation), targetPlayer.getName());
+            logger().fine(() -> "Spawning angy bee at " + LocationUtil.toString(spawnLocation) +
+                    " with target player: " + targetPlayer.getName());
             event.getPlayer().getWorld().spawn(
                     spawnLocation,
                     Bee.class,

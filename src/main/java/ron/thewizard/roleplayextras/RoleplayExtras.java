@@ -4,9 +4,9 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
 import ron.thewizard.roleplayextras.modules.RoleplayExtrasModule;
-import ron.thewizard.roleplayextras.utils.KyoriUtil;
-import ron.thewizard.roleplayextras.utils.permissions.PermissionHandler;
-import ron.thewizard.roleplayextras.utils.permissions.PluginPermission;
+import ron.thewizard.roleplayextras.util.KyoriUtil;
+import ron.thewizard.roleplayextras.util.permissions.PermissionHandler;
+import ron.thewizard.roleplayextras.util.permissions.PluginPermission;
 
 import java.nio.file.Files;
 import java.util.Calendar;

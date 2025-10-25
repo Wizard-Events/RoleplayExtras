@@ -7,8 +7,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import ron.thewizard.roleplayextras.utils.MathUtil;
-import ron.thewizard.roleplayextras.utils.permissions.PluginPermission;
+import ron.thewizard.roleplayextras.util.MathUtil;
+import ron.thewizard.roleplayextras.util.permissions.PluginPermission;
 
 import java.util.Iterator;
 
@@ -33,18 +33,32 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(AsyncChatEvent event) {
-        if (PluginPermission.BYPASS_CHAT_PROXIMITY_SEND.test(event.getPlayer())) return;
+        if (PluginPermission.BYPASS_CHAT_PROXIMITY_SEND.check(event.getPlayer())) {
+            logger().fine(() -> event.getPlayer().getName() + "'s message will be seen by everyone because of permission: " +
+                    PluginPermission.BYPASS_CHAT_PROXIMITY_SEND.node());
+            return;
+        }
 
         Iterator<Audience> audienceIterator = event.viewers().iterator();
 
         while (audienceIterator.hasNext()) {
-            if (audienceIterator.next() instanceof Player messageReceiver
-                    && !PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.test(messageReceiver)) {
-                // Check if worlds are the same so distanceSquared never throws an IllegalArgumentException
-                if (!messageReceiver.getWorld().getUID().equals(event.getPlayer().getWorld().getUID())
-                        || messageReceiver.getLocation().distanceSquared(event.getPlayer().getLocation()) > maxDistanceSquared) {
-                    audienceIterator.remove(); // Remove chat receiver if they are out of reach
-                }
+            if (!(audienceIterator.next() instanceof Player messageReceiver)) {
+                continue;
+            }
+
+            if (PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.check(messageReceiver)) {
+                logger().fine(() -> messageReceiver.getName() + " has permission: " +
+                        PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.node() +
+                        " and will therefore see all messages from " + event.getPlayer().getName());
+                continue;
+            }
+
+            // Check if worlds are the same so distanceSquared never throws an IllegalArgumentException
+            if (!messageReceiver.getWorld().getUID().equals(event.getPlayer().getWorld().getUID())
+                    || messageReceiver.getLocation().distanceSquared(event.getPlayer().getLocation()) > maxDistanceSquared) {
+                audienceIterator.remove(); // Remove chat receiver if they are out of reach
+                logger().fine(() -> messageReceiver.getName() + " will not see message from " + event.getPlayer().getName() +
+                        " because they are too far away");
             }
         }
     }

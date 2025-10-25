@@ -7,7 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import ron.thewizard.roleplayextras.utils.KyoriUtil;
+import ron.thewizard.roleplayextras.util.KyoriUtil;
 
 import java.util.List;
 
@@ -39,9 +39,8 @@ public class JoinMessage extends RoleplayExtrasModule implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void on(PlayerJoinEvent event) {
-        logger().info("Sending join message to player {}", event.getPlayer().getName());
-        for (Component component : join_message) {
+        for (Component component : join_message)
             event.getPlayer().sendMessage(component);
-        }
+        logger().fine(() -> "Sent join-message to player: " + event.getPlayer().getName());
     }
 }

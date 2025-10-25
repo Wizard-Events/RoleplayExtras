@@ -37,7 +37,7 @@ public class LockFoodLevel extends RoleplayExtrasModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(FoodLevelChangeEvent event) {
         event.setFoodLevel(doHardLocking ? foodLevel : Math.min(event.getFoodLevel(), foodLevel));
-        logger().info("Set level to {}/20 in {} for player {}",
-                event.getFoodLevel(), event.getEventName(), event.getEntity().getName());
+        logger().fine(() -> "Set level to " + event.getFoodLevel() + "/20 in " + event.getEventName() + " for player " +
+                event.getEntity().getName());
     }
 }

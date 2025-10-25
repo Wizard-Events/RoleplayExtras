@@ -92,7 +92,7 @@ public class VinesAreRopes extends RoleplayExtrasModule implements Listener {
         try {
             block.setType(material, true); // Apply physics so blockStates can change naturally (ex. visually merge)
         } catch (Throwable t) {
-            logger().error("Error artificially placing block of type {}! - {}", material, t.getMessage());
+            logger().severe(() -> "Error placing block of type " + material.name() + "! - " + t.getMessage());
         }
     }
 

@@ -1,4 +1,4 @@
-package ron.thewizard.roleplayextras.utils;
+package ron.thewizard.roleplayextras.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;

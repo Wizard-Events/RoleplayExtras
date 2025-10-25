@@ -1,4 +1,4 @@
-package ron.thewizard.roleplayextras.utils;
+package ron.thewizard.roleplayextras.util;
 
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.text.Component;

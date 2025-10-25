@@ -1,4 +1,4 @@
-package ron.thewizard.roleplayextras.utils;
+package ron.thewizard.roleplayextras.util;
 
 import ron.thewizard.roleplayextras.RoleplayExtras;
 

@@ -1,5 +1,6 @@
-package ron.thewizard.roleplayextras.utils;
+package ron.thewizard.roleplayextras.util;
 
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -65,5 +66,5 @@ public class EntityUtil {
 
     public static final Lazy<Set<EntityType>> BOATS = Lazy.of(() -> Arrays.stream(EntityType.values())
             .filter(entityType -> entityType.name().contains("BOAT"))
-            .collect(Collectors.toUnmodifiableSet()));
+            .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableSet::copyOf)));
 }

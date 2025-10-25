@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import ron.thewizard.roleplayextras.RoleplayExtras;
-import ron.thewizard.roleplayextras.utils.Disableable;
-import ron.thewizard.roleplayextras.utils.Enableable;
+import ron.thewizard.roleplayextras.util.Disableable;
+import ron.thewizard.roleplayextras.util.Enableable;
 
 import java.lang.reflect.Modifier;
 import java.util.Comparator;

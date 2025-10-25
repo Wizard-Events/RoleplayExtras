@@ -1,4 +1,4 @@
-package ron.thewizard.roleplayextras.utils.permissions;
+package ron.thewizard.roleplayextras.util.permissions;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
@@ -7,7 +7,7 @@ import net.luckperms.api.util.Tristate;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.java.JavaPlugin;
-import ron.thewizard.roleplayextras.utils.EntityUtil;
+import ron.thewizard.roleplayextras.util.EntityUtil;
 
 public final class LuckPermsPermissionHandler implements PermissionHandler {
 
