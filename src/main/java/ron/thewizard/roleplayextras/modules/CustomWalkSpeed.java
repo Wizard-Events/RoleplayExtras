@@ -31,7 +31,7 @@ public class CustomWalkSpeed extends RoleplayExtrasModule implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void on(PlayerJoinEvent event) {
         if (firstJoinOnly && event.getPlayer().hasPlayedBefore()) {
-            logger().debug("Ignoring player {} because they are not a new player", event.getPlayer().getName());
+            logger().info("Ignoring player {} because they are not a new player", event.getPlayer().getName());
             return;
         }
 

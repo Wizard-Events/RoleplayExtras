@@ -26,16 +26,15 @@ import java.util.stream.Collectors;
 
 public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<ScheduledTask>, Listener {
 
+    private final Map<UUID, Long> despawnCountdowns = new HashMap<>();
     private final Set<EntityType> passengerTypes;
     private final Set<String> worlds;
     private final long removalCountdownTicks, checkPeriodTicks;
 
-    private Map<UUID, Long> despawnCountdowns;
-
     public BoatDespawnTimer() {
         super("gameplay.boat-despawn-timer", true, """
-                New Comment""");
-        this.removalCountdownTicks = config.getLong(configPath + ".boat-despawn-countdown-ticks", 2 * 60 * 20);
+                Removes abandoned boats with a smart delay.""");
+        this.removalCountdownTicks = config.getLong(configPath + ".despawn-ticks", 2 * 60 * 20);
         this.passengerTypes = config.getList(configPath + ".passengers-that-delay", List.of("PLAYER")).stream()
                 .map(passengerType -> {
                     try {
@@ -47,13 +46,12 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableSet());
-        this.checkPeriodTicks = config.getLong(configPath + ".worlds-check-period-ticks", 5 * 20);
+        this.checkPeriodTicks = config.getLong(configPath + ".check-period-ticks", 5 * 20);
         this.worlds = new HashSet<>(config.getList(configPath + ".worlds", List.of("world")));
     }
 
     @Override
     public void enable() {
-        despawnCountdowns = new HashMap<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.getServer().getGlobalRegionScheduler()
                 .runAtFixedRate(plugin, this, checkPeriodTicks, checkPeriodTicks);
@@ -62,10 +60,6 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
-        if (despawnCountdowns != null) {
-            despawnCountdowns.clear();
-            despawnCountdowns = null;
-        }
     }
 
     @Override
@@ -75,14 +69,14 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
 
             for (Boat boat : world.getEntitiesByClass(Boat.class)) {
                 if (boat.customName() != null) { // If boat has custom name, it's allowed to exist infinitely
-                    logger().debug("Ignoring {} at {} because it's nametagged",
+                    logger().info("Ignoring {} at {} because it's nametagged",
                             boat.getType(), LocationUtil.toString(boat.getLocation()));
                     despawnCountdowns.remove(boat.getUniqueId());
                     continue;
                 }
 
                 if (containsDelayingPassenger(boat.getPassengers())) {
-                    logger().debug("Resetting despawn countdown for {} at {} because of delaying passenger",
+                    logger().info("Resetting despawn countdown for {} at {} because of delaying passenger",
                             boat.getType(), LocationUtil.toString(boat.getLocation()));
                     despawnCountdowns.remove(boat.getUniqueId());
                     continue;
@@ -100,6 +94,9 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
 
                 ticksLeft = ticksLeft - checkPeriodTicks;
                 despawnCountdowns.put(boat.getUniqueId(), ticksLeft);
+                logger.info("{} at {} will be removed in {} ticks or {}",
+                        boat.getType(), boat.getLocation(), ticksLeft,
+                        CommonUtil.formatDuration(Duration.ofSeconds(ticksLeft * 50L)));
             }
         }
     }

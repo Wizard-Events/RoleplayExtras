@@ -67,10 +67,10 @@ public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener
 
         if (spawnLocations.isEmpty()) {
             spawnLocations.add(clickedBlock.getLocation());
-            logger().debug("Going to spawn bees inside beenest because no empty surrounding block at {}",
+            logger().info("Going to spawn bees inside beenest because no empty surrounding block at {}",
                     LocationUtil.toString(clickedBlock.getLocation()));
         } else {
-            logger().debug("Found {} suitable bee spawn location(s) for beenest at {}",
+            logger().info("Found {} suitable bee spawn location(s) for beenest at {}",
                     spawnLocations.size(), LocationUtil.toString(clickedBlock.getLocation()));
         }
 
@@ -78,10 +78,10 @@ public class DontPokeTheBeehive extends RoleplayExtrasModule implements Listener
 
         if (nearbyPlayers.isEmpty()) {
             nearbyPlayers.add(event.getPlayer());
-            logger().debug("No players near beenest at {}. Adding player {} from {}",
+            logger().info("No players near beenest at {}. Adding player {} from {}",
                     clickedBlock.getLocation(), event.getPlayer().getName(), event.getEventName());
         } else {
-            logger().debug("Found {} player target(s) near beenest at {}. (players={})",
+            logger().info("Found {} player target(s) near beenest at {}. (players={})",
                     nearbyPlayers.size(), clickedBlock.getLocation(),
                     nearbyPlayers.stream().map(Player::getName).collect(Collectors.joining(", ")));
         }

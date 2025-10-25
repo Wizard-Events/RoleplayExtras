@@ -51,13 +51,13 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
     public RoleplayExtrasModule(String configPath, boolean defEnabled, String comment) {
         this.configPath = configPath;
 
-        LogLevel loggingLevel = LogLevel.INFO;
+        LogLevel loggingLevel = LogLevel.WARN;
         String configuredLoggingLevel = config.getString(configPath + ".log-level", loggingLevel.name(),
                 Arrays.stream(LogLevel.values()).map(Enum::name).collect(Collectors.joining(" ")));
         try {
             loggingLevel = LogLevel.valueOf(configuredLoggingLevel);
         } catch (IllegalArgumentException e) {
-            notRecognized(org.slf4j.event.Level.class, configuredLoggingLevel);
+            notRecognized(LogLevel.class, configuredLoggingLevel);
         }
         this.logger = createModuleLogger(configPath, loggingLevel);
 
