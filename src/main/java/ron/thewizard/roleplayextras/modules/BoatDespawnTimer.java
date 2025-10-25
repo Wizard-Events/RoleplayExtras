@@ -190,6 +190,7 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
                     boat.getType(), LocationUtil.toString(boat.getLocation()), boat.getTicksLived(),
                     CommonUtil.formatDuration(Duration.ofMillis(boat.getTicksLived() * 50L)));
             boat.remove();
+            module.cancelWatchdogTask(boat.getUniqueId());
         }
     }
 }
