@@ -160,7 +160,7 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
             if (!module.worlds.contains(boat.getWorld().getName())) {
                 module.logger().debug("Ignoring {} at {} because not in configured worlds.",
                         boat.getType(), LocationUtil.toString(boat.getLocation()));
-                task.cancel();
+                module.cancelWatchdogTask(boat.getUniqueId());
                 return;
             }
 
