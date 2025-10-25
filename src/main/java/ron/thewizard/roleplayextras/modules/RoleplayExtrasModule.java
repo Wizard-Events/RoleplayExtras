@@ -48,6 +48,12 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
     public RoleplayExtrasModule(String configPath, boolean defEnabled, String comment) {
         this.configPath = configPath;
 
+        if (comment == null || comment.isBlank()) {
+            this.enabled_in_config = config.getBoolean(configPath + ".enable", defEnabled);
+        } else {
+            this.enabled_in_config = config.getBoolean(configPath + ".enable", defEnabled, comment);
+        }
+
         Level loggingLevel = Level.INFO;
         String configuredLoggingLevel = config.getString(configPath + ".log-level", loggingLevel.getName(), """
                 Levels: OFF - SEVERE (highest value) - WARNING - INFO - CONFIG - FINE - FINER - FINEST (lowest value) - ALL""");
@@ -58,12 +64,6 @@ public abstract class RoleplayExtrasModule implements Enableable, Disableable {
                     "', falling back to " + Level.INFO.getName());
         }
         this.logger = getModuleLogger(configPath, loggingLevel);
-
-        if (comment == null || comment.isBlank()) {
-            this.enabled_in_config = config.getBoolean(configPath + ".enable", defEnabled);
-        } else {
-            this.enabled_in_config = config.getBoolean(configPath + ".enable", defEnabled, comment);
-        }
     }
 
     public boolean shouldEnable() {
