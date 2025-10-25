@@ -1,7 +1,7 @@
 package ron.thewizard.roleplayextras.modules;
 
-import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import ron.thewizard.roleplayextras.utils.CommonUtil;
 import ron.thewizard.roleplayextras.utils.EntityUtil;
@@ -26,9 +28,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<ScheduledTask>, Listener {
+public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
 
-    private final Map<UUID, Long> despawnCountdowns = new HashMap<>();
+    private final Map<UUID, ScheduledTask> watchdogTasks = new HashMap<>();
     private final Set<EntityType> passengerTypes;
     private final Set<String> worlds;
     private final long removalCountdownTicks, checkPeriodTicks;
@@ -55,55 +57,48 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
     @Override
     public void enable() {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        plugin.getServer().getGlobalRegionScheduler()
-                .runAtFixedRate(plugin, this, checkPeriodTicks, checkPeriodTicks);
+        plugin.getServer().getGlobalRegionScheduler().run(plugin, getWorlds -> {
+            for (World world : plugin.getServer().getWorlds()) {
+                if (!worlds.contains(world.getName())) continue;
+
+                for (Chunk chunk : world.getLoadedChunks()) {
+                    if (!chunk.isEntitiesLoaded()) continue;
+
+                    plugin.getServer().getRegionScheduler().run(plugin, chunk.getWorld(), chunk.getX(), chunk.getZ(), getEntities -> {
+                        for (Entity entity : chunk.getEntities()) {
+                            if (EntityUtil.BOATS.get().contains(entity.getType())) {
+                                attachWatchdogTask((Boat) entity);
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
+        watchdogTasks.forEach((uuid, task) -> cancelWatchdogTask(uuid));
     }
 
-    @Override
-    public void accept(ScheduledTask task) {
-        for (World world : plugin.getServer().getWorlds()) {
-            if (!worlds.contains(world.getName())) continue;
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    private void on(EntitySpawnEvent event) {
+        if (EntityUtil.BOATS.get().contains(event.getEntityType())) {
+            attachWatchdogTask((Boat) event.getEntity());
+        }
+    }
 
-            for (Boat boat : world.getEntitiesByClass(Boat.class)) {
-                if (boat.customName() != null) { // If boat has custom name, it's allowed to exist infinitely
-                    logger().info("Ignoring {} at {} because it's nametagged",
-                            boat.getType(), LocationUtil.toString(boat.getLocation()));
-                    despawnCountdowns.remove(boat.getUniqueId());
-                    continue;
-                }
-
-                if (hasDelayingPassenger(boat.getPassengers())) {
-                    logger().info("Resetting despawn countdown for {} at {} because of delaying passenger",
-                            boat.getType(), LocationUtil.toString(boat.getLocation()));
-                    despawnCountdowns.remove(boat.getUniqueId());
-                    continue;
-                }
-
-                long ticksLeft = despawnCountdowns.computeIfAbsent(boat.getUniqueId(), k -> removalCountdownTicks);
-
-                if (ticksLeft <= 0) {
-                    logger().info("Removing {} at {} (lifetime: {} ticks or {})",
-                            boat.getType(), LocationUtil.toString(boat.getLocation()), boat.getTicksLived(),
-                            CommonUtil.formatDuration(Duration.ofMillis(boat.getTicksLived() * 50L)));
-                    boat.remove();
-                    continue;
-                }
-
-                ticksLeft = ticksLeft - checkPeriodTicks;
-                despawnCountdowns.put(boat.getUniqueId(), ticksLeft);
-                logger.info("{} at {} will be removed in {} ticks or {}",
-                        boat.getType(), LocationUtil.toString(boat.getLocation()), ticksLeft,
-                        CommonUtil.formatDuration(Duration.ofMillis(ticksLeft * 50L)));
+    @EventHandler(priority = EventPriority.LOWEST)
+    private void on(EntitiesLoadEvent event) {
+        for (Entity entity : event.getEntities()) {
+            if (EntityUtil.BOATS.get().contains(entity.getType())) {
+                attachWatchdogTask((Boat) entity);
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     private void on(EntitiesUnloadEvent event) {
         for (Entity entity : event.getEntities()) {
             if (!EntityUtil.BOATS.get().contains(entity.getType())) continue;
@@ -115,13 +110,8 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
                     LocationUtil.toString(entity.getLocation()), entity.getTicksLived(),
                     CommonUtil.formatDuration(Duration.ofMillis(entity.getTicksLived() * 50L)));
 
-            entity.remove();
+            entity.setPersistent(false);
         }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    private void on(EntityRemoveFromWorldEvent event) {
-        despawnCountdowns.remove(event.getEntity().getUniqueId()); // Avoid possible memory leak
     }
 
     private boolean hasDelayingPassenger(List<Entity> passengerList) {
@@ -131,5 +121,67 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Consumer<S
             }
         }
         return false;
+    }
+
+    private void attachWatchdogTask(Boat boat) {
+        watchdogTasks.computeIfAbsent(boat.getUniqueId(), uuid -> boat.getScheduler().runAtFixedRate(plugin,
+                new BoatWatchdog(this, boat), null, checkPeriodTicks, checkPeriodTicks));
+    }
+
+    private void cancelWatchdogTask(UUID uuid) {
+        if (watchdogTasks.containsKey(uuid)) {
+            watchdogTasks.remove(uuid).cancel();
+        }
+    }
+
+    private static final class BoatWatchdog implements Consumer<ScheduledTask> {
+
+        private final BoatDespawnTimer module;
+        private final Boat boat;
+
+        private long lifeTimeTicksLeft;
+
+        public BoatWatchdog(BoatDespawnTimer module, Boat boat) {
+            this.module = module;
+            this.boat = boat;
+            this.lifeTimeTicksLeft = module.removalCountdownTicks;
+        }
+
+        @Override
+        public void accept(ScheduledTask task) {
+            if (!module.worlds.contains(boat.getWorld().getName())) {
+                module.logger().debug("Ignoring {} at {} because not in configured worlds.",
+                        boat.getType(), LocationUtil.toString(boat.getLocation()));
+                task.cancel();
+                return;
+            }
+
+            if (boat.customName() != null) {
+                lifeTimeTicksLeft = module.removalCountdownTicks;
+                module.logger().debug("Ignoring {} at {} because of custom name",
+                        boat.getType(), LocationUtil.toString(boat.getLocation()));
+                return;
+            }
+
+            if (module.hasDelayingPassenger(boat.getPassengers())) {
+                lifeTimeTicksLeft = module.removalCountdownTicks;
+                module.logger().debug("Ignoring {} at {} because of delaying passenger",
+                        boat.getType(), LocationUtil.toString(boat.getLocation()));
+                return;
+            }
+
+            if (lifeTimeTicksLeft > 0) {
+                lifeTimeTicksLeft = lifeTimeTicksLeft - module.checkPeriodTicks;
+                module.logger().debug("{} at {} will be removed in {} ticks ({})",
+                        boat.getType(), LocationUtil.toString(boat.getLocation()), lifeTimeTicksLeft,
+                        CommonUtil.formatDuration(Duration.ofMillis(lifeTimeTicksLeft * 50L)));
+                return;
+            }
+
+            module.logger().info("Removed {} at {}. Lifetime: {} ticks ({})",
+                    boat.getType(), LocationUtil.toString(boat.getLocation()), boat.getTicksLived(),
+                    CommonUtil.formatDuration(Duration.ofMillis(boat.getTicksLived() * 50L)));
+            boat.remove();
+        }
     }
 }
