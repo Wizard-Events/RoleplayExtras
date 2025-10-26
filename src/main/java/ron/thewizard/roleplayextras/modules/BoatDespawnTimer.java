@@ -10,8 +10,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import ron.thewizard.roleplayextras.util.CommonUtil;
@@ -86,11 +87,20 @@ public class BoatDespawnTimer extends RoleplayExtrasModule implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    private void on(EntitySpawnEvent event) {
-        if (EntityUtil.BOATS.get().contains(event.getEntityType())) {
-            attachWatchdogTask(event.getEntity());
-            logger().finest(() -> "Attached watchdog task to spawned " + event.getEntityType() + " at " +
-                    LocationUtil.toString(event.getLocation()));
+    private void on(VehicleCreateEvent event) {
+        if (EntityUtil.BOATS.get().contains(event.getVehicle().getType())) {
+            attachWatchdogTask(event.getVehicle());
+            logger().finest(() -> "Attached watchdog task to newly created " + event.getVehicle().getType() + " at " +
+                    LocationUtil.toString(event.getVehicle().getLocation()));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    private void on(VehicleExitEvent event) {
+        if (EntityUtil.BOATS.get().contains(event.getVehicle().getType())) {
+            attachWatchdogTask(event.getVehicle());
+            logger().finest(() -> "Attached watchdog task to exited vehicle " + event.getVehicle().getType() + " at " +
+                    LocationUtil.toString(event.getVehicle().getLocation()));
         }
     }
 
