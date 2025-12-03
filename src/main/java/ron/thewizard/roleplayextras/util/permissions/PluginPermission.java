@@ -14,7 +14,8 @@ public enum PluginPermission {
     VOICEPITCH_CMD_SELF(new Permission("rpextras.cmd.voicepitch.self", PermissionDefault.OP)),
     VOICEPITCH_CMD_OTHER(new Permission("rpextras.cmd.voicepitch.other", PermissionDefault.OP)),
     BYPASS_CHAT_PROXIMITY_RECEIVE(new Permission("rpextras.bypass.chatproximity.receive", PermissionDefault.FALSE)),
-    BYPASS_CHAT_PROXIMITY_SEND(new Permission("rpextras.bypass.chatproximity.send", PermissionDefault.FALSE));
+    BYPASS_CHAT_PROXIMITY_SEND(new Permission("rpextras.bypass.chatproximity.send", PermissionDefault.FALSE)),
+    ELYTRA_USE_PERMISSION(new Permission("rpextras.elytra-allowance", PermissionDefault.TRUE));
 
     private final Permission permission;
 
