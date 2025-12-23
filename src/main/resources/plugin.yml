@@ -9,6 +9,7 @@ folia-supported: true
 softdepend:
   - packetevents
   - Citizens
+  - PlaceholderAPI
 
 commands:
   roleplayextras:

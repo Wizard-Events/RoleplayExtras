@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "ron.thewizard"
-version = "1.5.0"
+version = "1.6.0"
 description = "Gameplay alterations for roleplay."
 
 repositories {
@@ -29,13 +29,18 @@ repositories {
     maven("https://repo.bsdevelopment.org/releases") {
         name = "configmaster-repo"
     }
+
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
+        name = "placeholderapi-repo"
+    }
 }
 
 dependencies {
-    compileOnly("org.purpurmc.purpur:purpur-api:1.21.8-R0.1-SNAPSHOT")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.9.5")
-    compileOnly("org.apache.logging.log4j:log4j-core:2.24.3")
+    compileOnly("org.purpurmc.purpur:purpur-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.11.1")
+    compileOnly("org.apache.logging.log4j:log4j-core:2.25.3")
     compileOnly("net.luckperms:api:5.4")
+    compileOnly("me.clip:placeholderapi:2.11.7")
 
     implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-rc.3")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")

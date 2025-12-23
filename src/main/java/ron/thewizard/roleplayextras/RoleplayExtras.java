@@ -21,6 +21,8 @@ public final class RoleplayExtras extends JavaPlugin {
     private static ComponentLogger logger;
     private static Random random;
 
+    public static boolean isPapiInstalled;
+
     @Override
     public void onEnable() {
         logger = getComponentLogger();
@@ -47,6 +49,7 @@ public final class RoleplayExtras extends JavaPlugin {
         instance = this;
         permissionHandler = PermissionHandler.create(instance);
         random = new Random();
+        isPapiInstalled = getServer().getPluginManager().getPlugin("PlaceholderAPI") != null;
 
         logger.info("Loading config");
         if (!reloadConfiguration()) {
