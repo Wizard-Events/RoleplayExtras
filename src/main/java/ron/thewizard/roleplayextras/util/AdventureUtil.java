@@ -70,7 +70,7 @@ public class AdventureUtil {
      *              Bigger scale => more similar colors in a local area.
      *              Suggested: scale ≈ proximityRadius * 15..30 (e.g. 13 -> 200..400, 20 -> 300..600).
      */
-    public static @NotNull TextColor coordsToRGB(@NotNull Location location, double scale) {
+    public static @NotNull TextColor coordsToRGB(@NotNull Location location, double scale, float brightness) {
         if (scale <= 0.0 || Double.isNaN(scale) || Double.isInfinite(scale)) {
             scale = 300.0; // safe fallback
         }
@@ -90,9 +90,6 @@ public class AdventureUtil {
         // Saturation: smooth radial distance -> [0..1)
         final double saturation = 1.0 - Math.exp(-Math.sqrt(nx * nx + nz * nz));
 
-        // Fixed brightness
-        final float v = 0.75f;
-
-        return TextColor.color(HSVLike.hsvLike((float) (hue / 360.0), (float) saturation, v));
+        return TextColor.color(HSVLike.hsvLike((float) (hue / 360.0), (float) saturation, brightness));
     }
 }

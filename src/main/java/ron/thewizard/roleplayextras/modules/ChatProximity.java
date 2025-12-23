@@ -15,12 +15,14 @@ import java.util.Iterator;
 
 public class ChatProximity extends RoleplayExtrasModule implements Listener {
 
-    private final double maxDistanceSquared, colorScale;
+    private final double maxDistanceSquared, bypassColorScale;
+    private final float bypassColorBrightness;
 
     public ChatProximity() {
         super("gameplay.chat.proximity", true);
         this.maxDistanceSquared = MathUtil.square(config.getDouble(configPath + ".max-block-distance", 13));
-        this.colorScale = config.getDouble(configPath + ".bypass-color-scale", 13 * 15);
+        this.bypassColorScale = config.getDouble(configPath + ".bypass-color.scale", 150);
+        this.bypassColorBrightness = (float) config.getDouble(configPath + ".bypass-color.brightness", 0.75);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
                 messageReceiver.sendMessage(event.renderer().render(
                         event.getPlayer(),
                         event.getPlayer().displayName(),
-                        event.message().color(AdventureUtil.coordsToRGB(event.getPlayer().getLocation(),  colorScale)),
+                        event.message().color(AdventureUtil.coordsToRGB(event.getPlayer().getLocation(), bypassColorScale, bypassColorBrightness)),
                         messageReceiver
                 ));
             }
