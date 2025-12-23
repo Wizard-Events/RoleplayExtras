@@ -14,7 +14,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import ron.thewizard.roleplayextras.RoleplayExtras;
-import ron.thewizard.roleplayextras.util.KyoriUtil;
+import ron.thewizard.roleplayextras.util.AdventureUtil;
 
 public class ChatFormat extends RoleplayExtrasModule implements Listener, ChatRenderer {
 
@@ -22,10 +22,10 @@ public class ChatFormat extends RoleplayExtrasModule implements Listener, ChatRe
 
     public ChatFormat() {
         super("gameplay.chat.format", true);
-        this.defaultFormat = KyoriUtil.replaceAmpersand(config.getString(configPath + ".message-format",
+        this.defaultFormat = AdventureUtil.replaceAmpersand(config.getString(configPath + ".message-format",
                 "<white><%sneakycharacters_character_name%> {message}"));
         this.oocPrefix = config.getString(configPath + ".ooc.message-prefix", "((");
-        this.oocFormat = KyoriUtil.replaceAmpersand(config.getString(configPath + ".ooc.message-format",
+        this.oocFormat = AdventureUtil.replaceAmpersand(config.getString(configPath + ".ooc.message-format",
                 "<#9a9a9a><%sneakycharacters_character_name%> {message}"));
     }
 

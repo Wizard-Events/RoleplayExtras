@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import ron.thewizard.roleplayextras.commands.BaseCommand;
-import ron.thewizard.roleplayextras.util.KyoriUtil;
+import ron.thewizard.roleplayextras.util.AdventureUtil;
 import ron.thewizard.roleplayextras.util.permissions.PluginPermission;
 
 import java.util.Collections;
@@ -31,13 +31,13 @@ public class ReloadSubCmd extends BaseCommand {
         }
 
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text("Reloading ...", KyoriUtil.wizardPurple));
+        sender.sendMessage(Component.text("Reloading ...", AdventureUtil.wizardPurple));
         RoleplayExtras plugin = RoleplayExtras.getInstance();
         plugin.getServer().getAsyncScheduler().runNow(plugin, reload -> {
             if (plugin.reloadConfiguration()) {
-                sender.sendMessage(Component.text("Reload complete!", KyoriUtil.wizardWhite));
+                sender.sendMessage(Component.text("Reload complete!", AdventureUtil.wizardWhite));
             } else {
-                sender.sendMessage(Component.text("Something went wrong!", KyoriUtil.wizardRed));
+                sender.sendMessage(Component.text("Something went wrong!", AdventureUtil.wizardRed));
             }
             sender.sendMessage(Component.empty());
         });

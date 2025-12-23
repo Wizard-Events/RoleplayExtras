@@ -6,7 +6,7 @@ import io.github.thatsmusic99.configurationmaster.api.Title;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
-import ron.thewizard.roleplayextras.util.KyoriUtil;
+import ron.thewizard.roleplayextras.util.AdventureUtil;
 
 import java.io.File;
 import java.util.List;
@@ -118,11 +118,11 @@ public final class RoleplayConfig {
     }
 
     public @NotNull List<Component> getMessage(@NotNull String path, @NotNull List<String> def, @NotNull String comment) {
-        return this.getList(path, def, comment).stream().map(KyoriUtil::replaceAmpersand).map(MiniMessage.miniMessage()::deserialize).toList();
+        return this.getList(path, def, comment).stream().map(AdventureUtil::replaceAmpersand).map(MiniMessage.miniMessage()::deserialize).toList();
     }
 
     public @NotNull List<Component> getMessage(@NotNull String path, @NotNull List<String> def) {
-        return this.getList(path, def).stream().map(KyoriUtil::replaceAmpersand).map(MiniMessage.miniMessage()::deserialize).toList();
+        return this.getList(path, def).stream().map(AdventureUtil::replaceAmpersand).map(MiniMessage.miniMessage()::deserialize).toList();
     }
 
     public ConfigSection getConfigSection(String path, Map<String, Object> defaultKeyValue) {

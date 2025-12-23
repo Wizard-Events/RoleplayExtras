@@ -4,12 +4,10 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
 import ron.thewizard.roleplayextras.modules.RoleplayExtrasModule;
-import ron.thewizard.roleplayextras.util.KyoriUtil;
 import ron.thewizard.roleplayextras.util.permissions.PermissionHandler;
 import ron.thewizard.roleplayextras.util.permissions.PluginPermission;
 
 import java.nio.file.Files;
-import java.util.Calendar;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -56,12 +54,6 @@ public final class RoleplayExtras extends JavaPlugin {
             // If first ever reload fails, there's likely a bigger issue going on
             getServer().getPluginManager().disablePlugin(this);
             return;
-        }
-
-        // Important message for the master mind
-        Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 6) {
-            KyoriUtil.getBirthdayMessage().forEach(logger::info);
         }
 
         // Register permissions so they show up in managers

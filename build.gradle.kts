@@ -10,10 +10,6 @@ description = "Gameplay alterations for roleplay."
 repositories {
     mavenCentral()
 
-    maven("https://ci.pluginwiki.us/plugin/repository/everything/") {
-        name = "configmaster-repo"
-    }
-
     maven("https://repo.codemc.io/repository/maven-releases/") {
         name = "codemc-repo"
     }

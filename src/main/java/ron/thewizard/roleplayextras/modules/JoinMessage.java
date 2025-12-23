@@ -7,7 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import ron.thewizard.roleplayextras.util.KyoriUtil;
+import ron.thewizard.roleplayextras.util.AdventureUtil;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class JoinMessage extends RoleplayExtrasModule implements Listener {
                         "<#FF334E>Placeholders of any kind will not work here but that can be arranged."),
                         "Uses MiniMessage formatting: https://docs.advntr.dev/minimessage/format.html")
                 .stream()
-                .map(KyoriUtil::replaceAmpersand)
+                .map(AdventureUtil::replaceAmpersand)
                 .map(MiniMessage.miniMessage()::deserialize)
                 .toList();
     }

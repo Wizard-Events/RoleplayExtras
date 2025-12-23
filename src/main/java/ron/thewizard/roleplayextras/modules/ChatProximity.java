@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import ron.thewizard.roleplayextras.util.AdventureUtil;
 import ron.thewizard.roleplayextras.util.MathUtil;
 import ron.thewizard.roleplayextras.util.permissions.PluginPermission;
 
@@ -14,11 +15,12 @@ import java.util.Iterator;
 
 public class ChatProximity extends RoleplayExtrasModule implements Listener {
 
-    private final double maxDistanceSquared;
+    private final double maxDistanceSquared, colorScale;
 
     public ChatProximity() {
         super("gameplay.chat.proximity", true);
         this.maxDistanceSquared = MathUtil.square(config.getDouble(configPath + ".max-block-distance", 13));
+        this.colorScale = config.getDouble(configPath + ".bypass-color-scale", 13 * 15);
     }
 
     @Override
@@ -46,19 +48,27 @@ public class ChatProximity extends RoleplayExtrasModule implements Listener {
                 continue;
             }
 
-            if (PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.check(messageReceiver)) {
-                logger().fine(() -> messageReceiver.getName() + " has permission: " +
-                        PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.node() +
-                        " and will therefore see all messages from " + event.getPlayer().getName());
-                continue;
-            }
-
             // Check if worlds are the same so distanceSquared never throws an IllegalArgumentException
             if (!messageReceiver.getWorld().getUID().equals(event.getPlayer().getWorld().getUID())
                     || messageReceiver.getLocation().distanceSquared(event.getPlayer().getLocation()) > maxDistanceSquared) {
+
                 audienceIterator.remove(); // Remove chat receiver if they are out of reach
-                logger().fine(() -> messageReceiver.getName() + " will not see message from " + event.getPlayer().getName() +
-                        " because they are too far away");
+
+                if (!PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.check(messageReceiver)) {
+                    logger().fine(() -> messageReceiver.getName() + " will not see message from " + event.getPlayer().getName() +
+                            " because they are too far away");
+                    continue;
+                }
+
+                // If permitted, receiver should see the message with a color unique to the sender's location
+                logger().fine(() -> messageReceiver.getName() + " has permission: " + PluginPermission.BYPASS_CHAT_PROXIMITY_RECEIVE.node() +
+                        " and will therefore see all messages from " + event.getPlayer().getName());
+                messageReceiver.sendMessage(event.renderer().render(
+                        event.getPlayer(),
+                        event.getPlayer().displayName(),
+                        event.message().color(AdventureUtil.coordsToRGB(event.getPlayer().getLocation(),  colorScale)),
+                        messageReceiver
+                ));
             }
         }
     }

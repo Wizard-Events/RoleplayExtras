@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import ron.thewizard.roleplayextras.commands.BaseCommand;
-import ron.thewizard.roleplayextras.util.KyoriUtil;
+import ron.thewizard.roleplayextras.util.AdventureUtil;
 import ron.thewizard.roleplayextras.util.permissions.PluginPermission;
 
 import java.util.Collections;
@@ -39,13 +39,13 @@ public class VersionSubCmd extends BaseCommand {
         sender.sendMessage(Component.newline()
                 .append(
                         Component.text(String.join(" ", pluginMeta.getName(), pluginMeta.getVersion()))
-                                .color(KyoriUtil.wizardPurple)
+                                .color(AdventureUtil.wizardPurple)
                                 .clickEvent(ClickEvent.openUrl(pluginMeta.getWebsite()))
                 )
                 .append(Component.text(" by ").color(NamedTextColor.DARK_GRAY))
                 .append(
                         Component.text(String.join(", ", pluginMeta.getAuthors()))
-                                .color(KyoriUtil.ginkoBlue)
+                                .color(AdventureUtil.ginkoBlue)
                                 .clickEvent(ClickEvent.openUrl("https://github.com/xGinko"))
                 )
                 .append(Component.newline())

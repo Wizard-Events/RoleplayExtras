@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ron.thewizard.roleplayextras.RoleplayExtras;
 import ron.thewizard.roleplayextras.commands.PluginYMLCmd;
-import ron.thewizard.roleplayextras.util.KyoriUtil;
+import ron.thewizard.roleplayextras.util.AdventureUtil;
 import ron.thewizard.roleplayextras.util.permissions.PluginPermission;
 
 import java.util.Collections;
@@ -52,9 +52,9 @@ public class WalkSpeedCmd extends PluginYMLCmd {
 
         if (args.length == 0) {
             if (canChangeOthers) {
-                sender.sendMessage(Component.text("Missing arguments. Syntax: /walkspeed <speed> (player)", KyoriUtil.wizardRed));
+                sender.sendMessage(Component.text("Missing arguments. Syntax: /walkspeed <speed> (player)", AdventureUtil.wizardRed));
             } else {
-                sender.sendMessage(Component.text("Missing argument. Syntax: /walkspeed <speed>", KyoriUtil.wizardRed));
+                sender.sendMessage(Component.text("Missing argument. Syntax: /walkspeed <speed>", AdventureUtil.wizardRed));
             }
             return true;
         }
@@ -67,7 +67,7 @@ public class WalkSpeedCmd extends PluginYMLCmd {
             }
 
             if (!(sender instanceof Player player)) {
-                sender.sendMessage(Component.text("Missing argument. Syntax: /walkspeed <speed> <player>", KyoriUtil.wizardRed));
+                sender.sendMessage(Component.text("Missing argument. Syntax: /walkspeed <speed> <player>", AdventureUtil.wizardRed));
                 return true;
             }
 
@@ -95,7 +95,7 @@ public class WalkSpeedCmd extends PluginYMLCmd {
 
             @Nullable Player player = Bukkit.getPlayer(args[1]);
             if (player == null) {
-                sender.sendMessage(Component.text("Player '" + args[1] + "' is not online.", KyoriUtil.wizardRed));
+                sender.sendMessage(Component.text("Player '" + args[1] + "' is not online.", AdventureUtil.wizardRed));
                 return true;
             }
 
